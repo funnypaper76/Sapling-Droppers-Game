@@ -67,7 +67,7 @@
     .brand { font-size:clamp(18px,6vw,26px); letter-spacing:.5px; }
     .byline { font-size:9px; margin-left:5px; letter-spacing:0; }
     .tag { font-size:9px; line-height:1.4; letter-spacing:1px; margin-top:6px; }
-    .version { font-size:9px; max-width:110px; }
+    .version { display:none; }
     .mode-picker { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; margin-bottom:10px; padding:9px; }
     .mode-label, .mode-description { grid-column:1/-1; width:auto; margin:0; }
     .mode-button { min-width:0; min-height:44px; padding:10px 3px; font-size:10px; letter-spacing:.5px; }
@@ -145,8 +145,8 @@
 <body>
 <main class="cabinet">
   <header class="topline">
-    <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bark Knights</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.4.0 · PHONE EDITION</div>
+    <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bark Knights</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.0 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <span class="mode-label">WIND PROFILE</span>
@@ -156,15 +156,15 @@
     <span id="modeDescription" class="mode-description">Gentle breeze · 105 seconds · forgiving aim</span>
   </nav>
   <section class="screen" aria-label="Sapling Droppers browser game">
-    <canvas id="game" width="960" height="540" aria-label="Sapling Droppers game area. Tap the screen to start, then use the large touch controls below to fly and drop soil pods or saplings." role="img" tabindex="0"></canvas>
+    <canvas id="game" width="960" height="540" aria-label="Sapling Droppers game area. Tap the screen to start, then use the large touch controls below to fly, drop soil pods, plant saplings, and release seedbombs." role="img" tabindex="0"></canvas>
   </section>
   <section class="hud">
-    <div class="stat">GROUND SITES<br><strong id="soilCount">0 / 8</strong><br><small id="soilExtra">PODS 0 / 10</small></div>
+    <div class="stat"><span id="leftStatLabel">GROUND SITES</span><br><strong id="soilCount">0 / 8</strong><br><small id="soilExtra">PODS 0 / 10</small></div>
     <div class="phase" id="phaseLabel">MISSION READY</div>
-    <div class="stat right">SAPLINGS<br><strong id="plantCount">0 / 8</strong><br><small id="plantExtra">DROPS 0 / 10</small></div>
+    <div class="stat right"><span id="rightStatLabel">SAPLINGS</span><br><strong id="plantCount">0 / 8</strong><br><small id="plantExtra">DROPS 0 / 10</small></div>
   </section>
   <div class="controls">
-    <div class="help desktop-help"><kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> MOVE &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>W</kbd> <kbd>S</kbd> ALTITUDE<br><kbd>SPACE</kbd> DROP &nbsp; <kbd>ENTER</kbd> START / RESTART<br>Select a wind profile above. Every miss counts across both phases; 3 misses = mission failed.</div><div class="help mobile-help">Use the direction pad to fly. Tap <b>DROP / PLANT</b> to release a pod or sapling. Three misses ends the mission.</div>
+    <div class="help desktop-help"><kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> MOVE &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>W</kbd> <kbd>S</kbd> ALTITUDE<br><kbd>SPACE</kbd> ACTION &nbsp; <kbd>ENTER</kbd> START / RESTART<br>Select a wind profile above. Level 2 uses the same action key for seedbombs. 3 misses across the campaign = mission failed.</div><div class="help mobile-help">Use the direction pad to fly. Tap <b>DROP / PLANT</b> to release a pod or sapling. Three misses ends the mission.</div>
     <div class="actions"><button id="downloadGame" class="button-muted" type="button">↓ Download to Files</button><button id="restart" type="button">↻ Restart mission</button></div>
   </div>
   <section class="mobile-control-wrap" aria-label="Touch controls">
@@ -174,10 +174,10 @@
       <button type="button" data-control="left" aria-label="Fly drone left">◀</button>
       <button type="button" data-control="right" aria-label="Fly drone right">▶</button>
       <button type="button" data-control="down" aria-label="Fly drone down">▼</button>
-      <button type="button" data-control="action" aria-label="Drop soil pod or plant sapling">DROP / PLANT</button>
+      <button type="button" data-control="action" aria-label="Drop soil pod, plant sapling, or release seedbomb">DROP / PLANT</button>
     </div>
   </section>
-  <div class="foot">A tiny forest-restoration arcade game · Watch the wind, manage your supplies, and plant carefully.</div>
+  <div class="foot">A two-level forest-restoration arcade game · Plant saplings, test seedbombs, and compare outcomes. Survival figures in the game are illustrative project assumptions; real outcomes vary by species, site, weather and care.</div>
 </main>
 <script>
 (() => {
@@ -187,6 +187,8 @@
   ctx.imageSmoothingEnabled = false;
   const W = canvas.width, H = canvas.height, GROUND = 444;
   const TOTAL = 8, MAX_MISSES = 3;
+  // Each round receives a fresh, gently rolling terrain profile.
+  let terrainPoints = [], TARGETS = [];
   const MODE_SETTINGS = {
     normal: {
       label:'NORMAL', description:'Gentle breeze · 105 seconds · forgiving aim',
@@ -218,9 +220,16 @@
   };
   let activeMode = 'normal';
   const settings = () => MODE_SETTINGS[activeMode];
-  const TARGETS = Array.from({length: TOTAL}, (_, i) => ({
-    index: i, x: Math.round(82 + i * ((W - 164) / (TOTAL - 1)) )
-  }));
+  function terrainAt(x) {
+    if (!terrainPoints.length) return GROUND;
+    x = clamp(x, 0, W);
+    const step = W / (terrainPoints.length - 1);
+    const index = Math.min(terrainPoints.length - 2, Math.floor(x / step));
+    const a = terrainPoints[index], b = terrainPoints[index + 1];
+    const t = (x - a.x) / (b.x - a.x || 1);
+    return a.y + (b.y - a.y) * t;
+  }
+
 
   const soilCountEl = document.getElementById('soilCount');
   const plantCountEl = document.getElementById('plantCount');
@@ -229,24 +238,48 @@
   const phaseLabel = document.getElementById('phaseLabel');
   const keys = new Set();
   let state = 'title', phase = 'soil', drone, pods, saplings, holes, particles;
-  let frame = 0, message = '', messageTimer = 0, cooldown = 0, score = 0;
+  let level = 1, seedbombAttempts = 0, seedbombHits = [], seedbombTree = null, dialoguePage = 0;
+  let frame = 0, message = '', messageTimer = 0, cooldown = 0, score = 0, victoryTimer = 0;
   let soilAttempts = 0, plantAttempts = 0, misses = 0, timeLeft = MODE_SETTINGS.normal.seconds * 60;
   let wind = 0, windBase = 0, windTarget = 0, gust = 0, gustTimer = 0, windShiftTimer = 0;
   const rand = (a,b) => a + Math.random()*(b-a);
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   const plantedCount = () => holes.filter(h => h.planted).length;
-  const targetUsed = index => holes.some(h => h.targetIndex === index);
+  const targetUsed = index => level === 2 ? seedbombHits.some(hit => hit.targetIndex === index) : holes.some(h => h.targetIndex === index);
   const groundTexture = [];
-  for (let x = 12; x < W; x += 38) {
-    groundTexture.push({x, y:GROUND+26, w:Math.round(rand(7,17)), h:4, color:'#a9784e'});
-    groundTexture.push({x:x+12, y:GROUND+53, w:Math.round(rand(5,15)), h:4, color:'#70462f'});
+  function generateWorld() {
+    // Walk a constrained random profile so the ground changes noticeably but stays playable.
+    const segments = 13;
+    terrainPoints = [];
+    let elevation = GROUND + rand(-5, 5);
+    for (let i = 0; i < segments; i++) {
+      if (i > 0) elevation = clamp(elevation + rand(-15, 15), 414, 466);
+      terrainPoints.push({x:i * W / (segments - 1), y:elevation});
+    }
+    // Jitter one target inside each horizontal sector: all eight remain spread across the level.
+    TARGETS = Array.from({length: TOTAL}, (_, i) => {
+      const sector = W / TOTAL;
+      const x = clamp((i + .5) * sector + rand(-sector * .27, sector * .27), 58, W - 58);
+      const snappedX = Math.round(x);
+      return {index:i, x:snappedX, y:terrainAt(snappedX)};
+    }).sort((a,b) => a.x - b.x);
+    // Reset decorative soil flecks against the new terrain as well.
+    groundTexture.length = 0;
+    for (let x = 12; x < W; x += 30) {
+      const surface = terrainAt(x);
+      groundTexture.push({x, y:surface+rand(22,34), w:Math.round(rand(7,17)), h:4, color:'#a9784e'});
+      groundTexture.push({x:x+10, y:surface+rand(46,62), w:Math.round(rand(5,15)), h:4, color:'#70462f'});
+    }
   }
 
   function reset() {
-    phase = 'soil';
+    generateWorld();
+    level = 1; phase = 'soil';
+    seedbombAttempts = 0; seedbombHits = []; seedbombTree = null; dialoguePage = 0;
+    victoryTimer = 0;
     drone = {x:145,y:180,vx:0,vy:0,prop:0};
     pods = []; saplings = []; holes = []; particles = [];
-    frame = 0; message = 'AIM FOR THE EIGHT MARKED SITES'; messageTimer = 230;
+    frame = 0; message = 'LEVEL 1 · SOIL PODS, THEN SAPLINGS'; messageTimer = 230;
     cooldown = 0; score = 0; soilAttempts = 0; plantAttempts = 0; misses = 0;
     timeLeft = settings().seconds * 60;
     wind = 0; windBase = 0; windTarget = rand(-settings().windTargetMax,settings().windTargetMax); gust = 0; gustTimer = 0; windShiftTimer = 0;
@@ -254,11 +287,87 @@
   }
 
   function updateHud() {
-    soilCountEl.textContent = `${holes.length} / ${TOTAL}`;
-    plantCountEl.textContent = `${plantedCount()} / ${TOTAL}`;
-    soilExtraEl.textContent = `PODS ${soilAttempts}/${settings().maxAttempts} · MISS ${misses}/${MAX_MISSES}`;
-    plantExtraEl.textContent = `DROPS ${plantAttempts}/${settings().maxAttempts} · MISS ${misses}/${MAX_MISSES}`;
-    phaseLabel.textContent = state === 'title' ? 'MISSION READY' : state === 'won' ? 'MISSION COMPLETE' : state === 'lost' ? 'MISSION FAILED' : phase === 'soil' ? 'PHASE 1 · PREPARE SOIL' : 'PHASE 2 · PLANT SAPLINGS';
+    const leftLabel = document.getElementById('leftStatLabel');
+    const rightLabel = document.getElementById('rightStatLabel');
+    if (level === 1) {
+      leftLabel.textContent = 'GROUND SITES';
+      rightLabel.textContent = 'SAPLINGS';
+      soilCountEl.textContent = `${holes.length} / ${TOTAL}`;
+      plantCountEl.textContent = `${plantedCount()} / ${TOTAL}`;
+      soilExtraEl.textContent = `PODS ${soilAttempts}/${settings().maxAttempts} · MISS ${misses}/${MAX_MISSES}`;
+      plantExtraEl.textContent = `DROPS ${plantAttempts}/${settings().maxAttempts} · MISS ${misses}/${MAX_MISSES}`;
+    } else {
+      leftLabel.textContent = 'TARGETS HIT';
+      rightLabel.textContent = 'SEEDBOMBS';
+      soilCountEl.textContent = `${seedbombHits.length} / ${TOTAL}`;
+      plantCountEl.textContent = `${seedbombAttempts} / ${settings().maxAttempts}`;
+      soilExtraEl.textContent = `SITES REACHED · MISS ${misses}/${MAX_MISSES}`;
+      plantExtraEl.textContent = `RELEASED · MISS ${misses}/${MAX_MISSES}`;
+    }
+    let label = 'MISSION READY';
+    if (state === 'celebrating') label = 'LEVEL 1 · FOREST GROWING…';
+    else if (state === 'seedbombCelebrating') label = 'LEVEL 2 · ONE TREE SURVIVED…';
+    else if (state === 'dialogue') label = 'FIELD REPORT';
+    else if (state === 'won') label = 'CAMPAIGN COMPLETE';
+    else if (state === 'lost') label = 'MISSION FAILED';
+    else if (state === 'playing' && level === 2) label = 'LEVEL 2 · SEEDBOMB TRIAL';
+    else if (state === 'playing' && phase === 'soil') label = 'LEVEL 1 · PREPARE SOIL';
+    else if (state === 'playing') label = 'LEVEL 1 · PLANT SAPLINGS';
+    phaseLabel.textContent = label;
+    const touchAction = document.querySelector('[data-control="action"]');
+    if (touchAction) touchAction.textContent = level === 2 ? 'SEEDBOMB' : 'DROP / PLANT';
+    const mobileHelp = document.querySelector('.mobile-help');
+    if (mobileHelp) mobileHelp.textContent = level === 2 ? 'Aim for the marked sites and tap SEEDBOMB to release a seed capsule. Three misses ends the campaign.' : 'Use the direction pad to fly. Tap DROP / PLANT to release a pod or sapling. Three misses ends the mission.';
+  }
+
+  function startSeedbombLevel() {
+    level = 2;
+    phase = 'seedbomb';
+    generateWorld();
+    drone = {x:145,y:180,vx:0,vy:0,prop:0};
+    pods = []; saplings = []; holes = []; particles = [];
+    seedbombAttempts = 0; seedbombHits = []; seedbombTree = null; dialoguePage = 0;
+    timeLeft = settings().seconds * 60;
+    wind = 0; windBase = 0; windTarget = rand(-settings().windTargetMax,settings().windTargetMax); gust = 0; gustTimer = 0; windShiftTimer = 0;
+    cooldown = 0; message = 'LEVEL 2 · RELEASE SEEDBOMBS ON THE NEW MARKERS'; messageTimer = 240;
+    state = 'playing'; keys.clear(); updateHud();
+  }
+
+  const DIALOGUE_PAGES = [
+    {
+      title:'FIELD REPORT · SEEDBOMB TRIAL',
+      lines:[
+        'EIGHT SEEDBOMB SITES WERE HIT.',
+        'ONLY ONE SITE GREW INTO A TREE.',
+        'The cutscene is symbolic, not an 8-shot trial.'
+      ]
+    },
+    {
+      title:'THE PROJECT COMPARISON',
+      lines:[
+        'PROJECT EXAMPLE: ABOUT 1% OF SEEDS IN SEEDBOMBS ESTABLISH.',
+        'ABOUT 70–80% OF PLANTED SAPLINGS SURVIVE YEAR ONE.',
+        'Illustrative figures, not universal guarantees.'
+      ]
+    },
+    {
+      title:'WHY CAN THE RESULTS DIFFER?',
+      lines:[
+        'Nursery-grown saplings start larger and stronger.',
+        'They can be planted into prepared sites.',
+        'Species, soil, weather and aftercare all matter.',
+        'Real survival rates vary by project and location.'
+      ]
+    }
+  ];
+
+  function advanceDialogue() {
+    if (state !== 'dialogue') return;
+    dialoguePage++;
+    if (dialoguePage >= DIALOGUE_PAGES.length) {
+      state = 'won'; message = 'CAMPAIGN COMPLETE'; messageTimer = 999999;
+    }
+    updateHud();
   }
 
   function startOrRestart() { reset(); }
@@ -269,7 +378,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = settings().description;
-    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.4.0 · ${settings().label} MODE`;
+    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.0 · ${settings().label} MODE`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
@@ -293,7 +402,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'sapling-droppers.html';
+      link.download = 'sapling-droppers-campaign.html';
       link.rel = 'noopener';
       link.style.position = 'fixed';
       link.style.left = '-10000px';
@@ -307,7 +416,7 @@
       button.textContent = 'DOWNLOAD BLOCKED';
       const fallback = document.createElement('a');
       fallback.href = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html>\n' + document.documentElement.outerHTML);
-      fallback.download = 'sapling-droppers.html';
+      fallback.download = 'sapling-droppers-campaign.html';
       fallback.textContent = 'Tap here to save game file';
       fallback.style.cssText = 'display:block;margin-top:8px;color:#d7f6a6';
       button.insertAdjacentElement('afterend', fallback);
@@ -324,7 +433,8 @@
       return;
     }
     if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','Enter'].includes(e.key)) e.preventDefault();
-    if (e.key === 'Enter' && state !== 'playing') { startOrRestart(); return; }
+    if (state === 'dialogue' && (e.key === 'Enter' || e.code === 'Space')) { advanceDialogue(); return; }
+    if (e.key === 'Enter' && state !== 'playing') { if (state === 'title' || state === 'lost' || state === 'won') startOrRestart(); return; }
     keys.add(e.key.toLowerCase());
     if (e.code === 'Space' && !e.repeat) action();
   });
@@ -344,8 +454,7 @@
     btn.addEventListener('pointercancel', up);
     btn.addEventListener('lostpointercapture', up);
   });
-  canvas.addEventListener('click', () => { if (state !== 'playing') startOrRestart(); });
-  canvas.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && state !== 'playing') { e.preventDefault(); startOrRestart(); } });
+  canvas.addEventListener('click', () => { if (state === 'dialogue') advanceDialogue(); else if (state === 'title' || state === 'lost' || state === 'won') startOrRestart(); });
 
   function makeWindborne(kind, x, y, vy) {
     // Every pod/sapling gets its own wind sensitivity, phase, and brief cross-gusts.
@@ -378,7 +487,11 @@
   }
 
   function action() {
-    if (state !== 'playing') { startOrRestart(); return; }
+    if (state === 'dialogue') { advanceDialogue(); return; }
+    if (state !== 'playing') {
+      if (state === 'title' || state === 'lost' || state === 'won') startOrRestart();
+      return;
+    }
     if (cooldown > 0) return;
     cooldown = 22;
     if (phase === 'soil') {
@@ -388,11 +501,21 @@
       puff(drone.x,drone.y+26,'#d0a35e',4);
       message = `SOIL POD ${soilAttempts}/${settings().maxAttempts} RELEASED`;
       messageTimer = 45;
-    } else {
+    } else if (phase === 'plant') {
       if (plantAttempts >= settings().maxAttempts) { message = 'NO SAPLINGS LEFT'; messageTimer = 65; return; }
+      plantAttempts++;
       saplings.push({...makeWindborne('sapling',drone.x,drone.y+20,1.1),landed:false});
       puff(drone.x,drone.y+22,'#b4d779',5);
       message = `SAPLING DROP ${plantAttempts}/${settings().maxAttempts}`;
+      messageTimer = 45;
+    } else if (phase === 'seedbomb') {
+      if (seedbombAttempts >= settings().maxAttempts) { message = 'NO SEEDBOMBS LEFT'; messageTimer = 65; return; }
+      seedbombAttempts++;
+      const bomb = makeWindborne('seedbomb',drone.x,drone.y+14,1.25);
+      bomb.vx = clamp(drone.vx*.34 + wind*.28,-1.8,1.8);
+      pods.push(bomb);
+      puff(drone.x,drone.y+21,'#c6a56c',5);
+      message = `SEEDBOMB ${seedbombAttempts}/${settings().maxAttempts} RELEASED`;
       messageTimer = 45;
     }
     updateHud();
@@ -448,8 +571,25 @@
     frame++;
     if (cooldown > 0) cooldown--;
     if (messageTimer > 0) messageTimer--;
-    updateWind();
+    if (state === 'celebrating') {
+      // Level 1: all eight planted saplings grow into mature pixel trees.
+      victoryTimer++;
+      if (victoryTimer >= 192) startSeedbombLevel();
+      return;
+    }
+    if (state === 'seedbombCelebrating') {
+      // Level 2: only one seedbomb site establishes and grows into a tree.
+      victoryTimer++;
+      if (victoryTimer >= 192) {
+        state = 'dialogue'; dialoguePage = 0;
+        message = 'FIELD REPORT · TAP OR PRESS ENTER TO CONTINUE'; messageTimer = 999999;
+        updateHud();
+      }
+      return;
+    }
+    if (state === 'dialogue') return;
     if (state !== 'playing') return;
+    updateWind();
 
     timeLeft--;
     if (timeLeft <= 0) { timeLeft = 0; gameOver('BATTERY EMPTY · TIME RAN OUT'); return; }
@@ -461,7 +601,7 @@
     drone.vx = (right?3.15:0) - (left?3.15:0);
     drone.vy = (down?2.35:0) - (up?2.35:0);
     drone.x = clamp(drone.x + drone.vx + wind*settings().droneWindEffect, 38, W-38);
-    drone.y = clamp(drone.y + drone.vy, 76, GROUND-95);
+    drone.y = clamp(drone.y + drone.vy, 76, terrainAt(drone.x)-95);
     drone.prop += (Math.abs(drone.vx)+Math.abs(drone.vy) > 0 ? .45 : .22);
 
     pods.forEach(p => {
@@ -469,23 +609,24 @@
       // A sapling that has reached ground level uses this resolver on the next frame;
       // do not apply another gust to the already-landed object.
       if (p.preLanded) {
-        p.y = GROUND-5;
+        p.y = terrainAt(p.x)-5;
       } else {
         p.vy += .23;
         const localWind = windFor(p);
         p.vx += (localWind*1.12 - p.vx)*.085;
         p.x += p.vx; p.y += p.vy;
       }
-      if (p.y >= GROUND-5) {
-        p.y = GROUND-5; p.dead = true;
-        puff(p.x,GROUND-5,'#b78b4a',8);
+      const impactGround = terrainAt(p.x);
+      if (p.y >= impactGround-5) {
+        p.y = impactGround-5; p.dead = true;
+        puff(p.x,impactGround-5,'#b78b4a',8);
         if (p.kind === 'soil') {
           const available = TARGETS.filter(t => !targetUsed(t.index));
           const target = available.sort((a,b)=>Math.abs(a.x-p.x)-Math.abs(b.x-p.x))[0];
           if (target && Math.abs(target.x-p.x) <= settings().soilTolerance) {
-            holes.push({x:target.x,targetIndex:target.index,planted:false,born:frame});
+            holes.push({x:target.x,y:target.y,targetIndex:target.index,planted:false,born:frame});
             message = `SITE PREPARED ${holes.length}/${TOTAL}`; messageTimer = 58;
-            puff(target.x,GROUND-5,'#d7b36e',10);
+            puff(target.x,target.y-5,'#d7b36e',10);
             if (holes.length === TOTAL) {
               phase = 'plant'; message = 'ALL SITES READY! DROP SAPLINGS INTO THE HOLES'; messageTimer = 220;
             }
@@ -498,10 +639,23 @@
           if (hole && Math.abs(hole.x-p.x) <= settings().plantTolerance) {
             hole.planted = true; score += 100;
             message = `SAPLING PLANTED +100 · ${plantedCount()}/${TOTAL}`; messageTimer = 70;
-            puff(hole.x,GROUND-14,'#a9d66c',13);
+            puff(hole.x,hole.y-14,'#a9d66c',13);
           } else {
-            puff(p.x,GROUND-5,'#7aa65b',5);
+            puff(p.x,impactGround-5,'#7aa65b',5);
             if (registerMiss('SAPLING MISSED! COMPENSATE FOR WIND')) return;
+          }
+        } else if (p.kind === 'seedbomb') {
+          const available = TARGETS.filter(t=>!targetUsed(t.index));
+          const target = available.sort((a,b)=>Math.abs(a.x-p.x)-Math.abs(b.x-p.x))[0];
+          const tolerance = Math.max(13, settings().soilTolerance * .78);
+          if (target && Math.abs(target.x-p.x) <= tolerance) {
+            seedbombHits.push({x:target.x,y:target.y,targetIndex:target.index});
+            score += 25;
+            message = `SEEDBOMB PLACED · ${seedbombHits.length}/${TOTAL}`; messageTimer = 60;
+            puff(target.x,target.y-5,'#b6a16a',8);
+          } else {
+            puff(p.x,impactGround-5,'#9c8050',5);
+            if (registerMiss('SEEDBOMB MISSED · ADJUST FOR WIND')) return;
           }
         }
       }
@@ -516,10 +670,11 @@
         const localWind = windFor(s);
         s.vx += (localWind*1.05 - s.vx)*.09;
         s.x += s.vx; s.y += s.vy;
-        if (s.y >= GROUND-15) {
-          s.y = GROUND-15; s.landed = true; s.dead = true;
+        const saplingGround = terrainAt(s.x);
+        if (s.y >= saplingGround-15) {
+          s.y = saplingGround-15; s.landed = true; s.dead = true;
           // Reuse the landing resolver by representing each sapling as a falling pod.
-          pods.push({...makeWindborne('sapling',s.x,GROUND-5,0),preLanded:true});
+          pods.push({...makeWindborne('sapling',s.x,saplingGround-5,0),preLanded:true});
         }
       }
     });
@@ -535,7 +690,15 @@
       gameOver('SAPLING SUPPLY EXHAUSTED'); return;
     }
     if (phase === 'plant' && plantedCount() === TOTAL && saplings.length === 0 && pods.filter(p=>p.kind==='sapling').length === 0) {
-      state = 'won'; message = 'FOREST RESTORED!'; messageTimer = 999999;
+      state = 'celebrating'; victoryTimer = 0; message = 'THE FOREST IS GROWING!'; messageTimer = 999999; updateHud();
+    }
+    if (phase === 'seedbomb' && seedbombAttempts >= settings().maxAttempts && pods.filter(p=>p.kind==='seedbomb').length === 0 && seedbombHits.length < TOTAL) {
+      gameOver('SEEDBOMB SUPPLY EXHAUSTED'); return;
+    }
+    if (phase === 'seedbomb' && seedbombHits.length === TOTAL && pods.filter(p=>p.kind==='seedbomb').length === 0) {
+      state = 'seedbombCelebrating'; victoryTimer = 0;
+      seedbombTree = {...seedbombHits[Math.floor(Math.random()*seedbombHits.length)]};
+      message = 'ONLY ONE SEEDBOMB SITE WILL ESTABLISH'; messageTimer = 999999; updateHud();
     }
     updateHud();
   }
@@ -564,43 +727,93 @@
     for(let i=0;i<7;i++) { const x=i*165-40; rect(x,205,95,70,'#5b9878'); rect(x+24,180,75,80,'#5b9878'); rect(x+42,158,42,52,'#5b9878'); }
     for(let i=0;i<8;i++) { const x=i*137-20; rect(x,255,74,105,'#39745c'); rect(x+15,226,52,80,'#39745c'); rect(x+26,208,31,52,'#39745c'); rect(x+9,330,10,38,'#2d5e4a'); }
     rect(110,72,70,13,'#d8efbd'); rect(128,59,45,13,'#d8efbd'); rect(690,105,78,12,'#d8efbd'); rect(713,91,40,14,'#d8efbd');
-    // Stable soil texture: specks are generated once, never at draw time.
-    rect(0,GROUND,W,H-GROUND,'#8b5b3b'); rect(0,GROUND,W,12,'#d1a65b'); rect(0,GROUND+12,W,8,'#6e482f');
+    // The dirt is a polygon following this round's generated elevation profile.
+    ctx.beginPath();
+    ctx.moveTo(0, terrainAt(0));
+    for (let x=0; x<=W; x+=5) ctx.lineTo(x, terrainAt(x));
+    ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+    ctx.fillStyle='#8b5b3b'; ctx.fill();
+    // Lighter topsoil band, also following the changing elevation.
+    ctx.beginPath();
+    ctx.moveTo(0, terrainAt(0)+10);
+    for (let x=0; x<=W; x+=5) ctx.lineTo(x, terrainAt(x)+10);
+    ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+    ctx.fillStyle='#6e482f'; ctx.fill();
+    // Surface highlight and grass tufts trace the hill crests and valleys.
+    ctx.beginPath();
+    for (let x=0; x<=W; x+=4) { const y=terrainAt(x); if (x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+    ctx.strokeStyle='#d1a65b'; ctx.lineWidth=5; ctx.stroke();
+    for(let x=0;x<W;x+=11) { const y=terrainAt(x); rect(x,y-5,3,6,(x%3?'#527f43':'#67964a')); }
     groundTexture.forEach(speck => rect(speck.x, speck.y, speck.w, speck.h, speck.color));
-    for(let x=0;x<W;x+=11) rect(x,GROUND-5,3,6,(x%3?'#527f43':'#67964a'));
   }
 
   function drawTargets() {
     TARGETS.forEach(t => {
       if (!targetUsed(t.index)) {
         // A clear aiming marker at every unused ground site.
-        rect(t.x-15,GROUND-9,30,3,'#e5d28e');
-        rect(t.x-10,GROUND-14,20,3,'#e5d28e');
-        rect(t.x-2,GROUND-20,4,8,'#f4e7ae');
-        rect(t.x-1,GROUND-28,2,4,'#f4e7ae');
+        rect(t.x-15,t.y-9,30,3,'#e5d28e');
+        rect(t.x-10,t.y-14,20,3,'#e5d28e');
+        rect(t.x-2,t.y-20,4,8,'#f4e7ae');
+        rect(t.x-1,t.y-28,2,4,'#f4e7ae');
       }
     });
   }
 
+  function drawGrowingTree(h, growth) {
+    const g = clamp(growth, 0, 1);
+    if (g <= 0) return;
+    const eased = g*g*(3-2*g);
+    const sway = Math.sin(frame*.035 + h.x)*1.5*eased;
+    const groundY = h.y;
+    const trunkH = 54*eased;
+    const canopyH = 39*eased;
+    const canopyW = 38*eased;
+    const x = h.x + sway;
+    // Trunk rises first; three blocky leaf tiers unfold behind it.
+    rect(x-3, groundY-trunkH, 6, trunkH, '#79502f');
+    rect(x-1, groundY-trunkH+8, 2, Math.max(0,trunkH-10), '#a97945');
+    const crownY = groundY-trunkH-canopyH+7*eased;
+    const species = h.targetIndex % 3;
+    const greens = species===0 ? ['#2d7f43','#39964c','#65b75c'] : species===1 ? ['#277544','#368f48','#75bf62'] : ['#347c3b','#4c9b45','#8bc95f'];
+    rect(x-canopyW*.30,crownY+canopyH*.48,canopyW*.60,canopyH*.48,greens[0]);
+    rect(x-canopyW*.48,crownY+canopyH*.24,canopyW*.96,canopyH*.48,greens[1]);
+    rect(x-canopyW*.27,crownY,canopyW*.54,canopyH*.40,greens[2]);
+    rect(x-canopyW*.13,crownY+canopyH*.13,canopyW*.16,canopyH*.12,'#b0dc78');
+  }
+
   function drawHole(h) {
-    rect(h.x-22,GROUND-1,44,7,'#5f402c'); rect(h.x-17,GROUND-5,34,7,'#372d25'); rect(h.x-12,GROUND-3,24,4,'#171f19');
-    rect(h.x-24,GROUND-1,8,3,'#a77b47'); rect(h.x+16,GROUND-1,8,3,'#a77b47');
+    const y = h.y;
+    rect(h.x-22,y-1,44,7,'#5f402c'); rect(h.x-17,y-5,34,7,'#372d25'); rect(h.x-12,y-3,24,4,'#171f19');
+    rect(h.x-24,y-1,8,3,'#a77b47'); rect(h.x+16,y-1,8,3,'#a77b47');
     if(h.planted) {
-      const sway=Math.sin(frame*.09+h.x)*2;
-      rect(h.x-3,GROUND-17,6,15,'#427441'); rect(h.x-12+sway,GROUND-23,12,7,'#2d8b49'); rect(h.x+1+sway,GROUND-29,12,8,'#329b4e'); rect(h.x-8+sway,GROUND-33,10,7,'#5eae54'); rect(h.x-10,GROUND-2,20,3,'#567b36');
+      if (state === 'celebrating' || state === 'won') {
+        const index = Math.max(0, h.targetIndex || 0);
+        const growth = state === 'won' ? 1 : clamp((victoryTimer - index*10)/95, 0, 1);
+        drawGrowingTree(h, growth);
+      } else {
+        const sway=Math.sin(frame*.09+h.x)*2;
+        rect(h.x-3,y-17,6,15,'#427441'); rect(h.x-12+sway,y-23,12,7,'#2d8b49'); rect(h.x+1+sway,y-29,12,8,'#329b4e'); rect(h.x-8+sway,y-33,10,7,'#5eae54'); rect(h.x-10,y-2,20,3,'#567b36');
+      }
     }
   }
 
   function drawDrone() {
     const x=Math.round(drone.x), y=Math.round(drone.y), wobble=Math.sin(drone.prop)*2;
-    ctx.globalAlpha=.18; rect(x-22,GROUND-13,44,5,'#14271c'); ctx.globalAlpha=1;
+    ctx.globalAlpha=.18; rect(x-22,terrainAt(x)-13,44,5,'#14271c'); ctx.globalAlpha=1;
     rect(x-32,y-5+wobble,64,4,'#263f3a'); rect(x-35,y-10+wobble,19,3,'#263f3a'); rect(x+16,y-10-wobble,19,3,'#263f3a');
     rect(x-37,y-13+wobble,22,3,'#e3e6bc'); rect(x+15,y-13-wobble,22,3,'#e3e6bc');
     rect(x-13,y-11,26,8,'#2d5144'); rect(x-17,y-5,34,13,'#d5d8ae'); rect(x-12,y-2,24,8,'#809e73');
     rect(x-6,y+8,12,6,'#3b5743'); rect(x-9,y+14,18,3,'#3b5743');
-    rect(x-3,y+1,6,3,phase==='soil'?'#d7b84b':'#8adf75');
+    rect(x-3,y+1,6,3,phase==='soil'?'#d7b84b':phase==='seedbomb'?'#c2d879':'#8adf75');
   }
   function drawPod(p) {
+    if (p.kind === 'seedbomb') {
+      // A seedbomb is represented as a small earthy seed capsule, not a weapon.
+      rect(p.x-7,p.y-5,14,10,'#5b432d'); rect(p.x-5,p.y-7,10,12,'#b79a5f');
+      rect(p.x-2,p.y-4,4,3,'#e1ca87'); rect(p.x+3,p.y-8,3,3,'#79a95a');
+      rect(p.x+2,p.y-10,2,3,'#b8d77a');
+      return;
+    }
     rect(p.x-7,p.y-5,14,10,'#6a4930'); rect(p.x-5,p.y-7,10,12,'#c69654'); rect(p.x-3,p.y-4,4,3,'#e3bc78'); rect(p.x+4,p.y+1,2,2,'#533a27');
   }
   function drawSapling(s) {
@@ -610,7 +823,10 @@
   function drawStatus() {
     rect(14,14,315,42,'#214332'); rect(18,18,307,34,'#31583c');
     const phoneLayout = canvas.getBoundingClientRect().width < 560;
-    text(phoneLayout ? (phase==='soil'?'SOIL PHASE 1':'PLANT PHASE 2') : (phase==='soil'?'MISSION 01: HIT THE SITES':'MISSION 02: PLANT THE HOLES'),28,39,12,'#e2f4b8','left');
+    const phaseText = level === 2
+      ? (phoneLayout ? 'LEVEL 2 · SEEDBOMBS' : 'LEVEL 2: SEEDBOMB TRIAL')
+      : (phoneLayout ? (phase==='soil'?'LEVEL 1 · SOIL':'LEVEL 1 · SAPLINGS') : (phase==='soil'?'LEVEL 1: HIT THE SITES':'LEVEL 1: PLANT THE HOLES'));
+    text(phaseText,28,39,12,'#e2f4b8','left');
     rect(650,14,296,42,'#214332'); rect(654,18,288,34,'#31583c');
     const seconds = Math.ceil(timeLeft/60);
     const dir = wind < -.08 ? '<' : wind > .08 ? '>' : '-';
@@ -629,14 +845,19 @@
       text(subtitle,W/2,174,12,'#c1d6a7');
       rect(130,194,700,1,'#5b7951');
       if(state==='title') {
-        text('1. SOIL PODS ON THE 8 MARKERS',W/2,224,11,'#f1e5af');
-        text('2. SAPLINGS INTO THE HOLES',W/2,252,11,'#f1e5af');
-        text('WIND SHIFTS EVERY DROP',W/2,280,10,'#f1e5af');
+        text('LEVEL 1: SOIL PODS, THEN PLANT SAPLINGS',W/2,224,11,'#f1e5af');
+        text('WATCH ALL EIGHT SAPLINGS GROW INTO TREES',W/2,252,10,'#f1e5af');
+        text('LEVEL 2: PLACE SEEDBOMBS ON NEW SITES',W/2,280,10,'#f1e5af');
         text('3 MISSES = GAME OVER',W/2,308,11,'#ffcf8a');
       } else if(state==='lost') {
-        text(`SITES ${holes.length}/${TOTAL} · TREES ${plantedCount()}/${TOTAL}`,W/2,235,11,'#f1e5af');
+        if (level === 2) text(`SEEDBOMB SITES ${seedbombHits.length}/${TOTAL}`,W/2,235,11,'#f1e5af');
+        else text(`SITES ${holes.length}/${TOTAL} · TREES ${plantedCount()}/${TOTAL}`,W/2,235,11,'#f1e5af');
         text(`SCORE ${score} · TIME ${Math.ceil(timeLeft/60)}s`,W/2,266,11,'#f1e5af');
         text(`MISSES ${misses}/${MAX_MISSES}`,W/2,297,11,'#ffcf8a');
+      } else if (state === 'won' && level === 2) {
+        text('ONLY 1 OF 8 SEEDBOMB SITES GREW A TREE',W/2,235,10,'#f1e5af');
+        text(`SCORE ${score} · TIME ${Math.ceil(timeLeft/60)}s`,W/2,266,11,'#f1e5af');
+        text('FIELD REPORT COMPLETE',W/2,297,11,'#f1e5af');
       } else {
         text('ALL 8 PLANTING SITES RESTORED',W/2,235,11,'#f1e5af');
         text(`SCORE ${score} · TIME ${Math.ceil(timeLeft/60)}s`,W/2,266,11,'#f1e5af');
@@ -646,49 +867,100 @@
       return;
     }
     rect(150,112,660,270,'#1e382d'); rect(158,120,644,254,'#284c38');
-    rect(172,134,616,2,'#91bd6c'); rect(172,358,616,2,'#91bd6c');
+    rect(172,134,616,2,'#91bd6c'); rect(172,368,616,2,'#91bd6c');
     text(title,W/2,176,title.length>18?25:32,'#e2f4b8'); text(subtitle,W/2,211,14,'#c1d6a7');
     rect(214,235,532,1,'#5b7951');
     if(state==='title') {
-      text('1. DROP SOIL PODS ON THE 8 MARKED SITES',W/2,264,13,'#f1e5af');
-      text('2. PLANT SAPLINGS IN EVERY HOLE',W/2,291,13,'#f1e5af');
-      text('WILD GUSTS · EVERY DROP DRIFTS DIFFERENTLY',W/2,315,12,'#f1e5af');
-      text('3 MISSES = MISSION FAILED',W/2,337,12,'#ffcf8a');
+      text('LEVEL 1: DROP SOIL PODS, THEN PLANT SAPLINGS',W/2,264,12,'#f1e5af');
+      text('WATCH THE FOREST GROW, THEN BEGIN LEVEL 2',W/2,291,12,'#f1e5af');
+      text('LEVEL 2: RELEASE SEEDBOMBS ON NEW SITES',W/2,312,12,'#f1e5af');
+      text('3 MISSES = MISSION FAILED',W/2,332,12,'#ffcf8a');
     } else if(state==='lost') {
-      text(`SITES: ${holes.length}/${TOTAL}    SAPLINGS: ${plantedCount()}/${TOTAL}`,W/2,266,15,'#f1e5af');
+      if (level === 2) text(`SEEDBOMB SITES: ${seedbombHits.length}/${TOTAL}    BOMBS: ${seedbombAttempts}`,W/2,266,13,'#f1e5af');
+      else text(`SITES: ${holes.length}/${TOTAL}    SAPLINGS: ${plantedCount()}/${TOTAL}`,W/2,266,15,'#f1e5af');
       text(`SCORE: ${score}    TIME: ${Math.ceil(timeLeft/60)}s`,W/2,294,13,'#f1e5af');
       text(`MISSED SHOTS: ${misses}/${MAX_MISSES}`,W/2,318,12,'#ffcf8a');
+    } else if (state === 'won' && level === 2) {
+      text('ONLY 1 OF 8 SEEDBOMB SITES GREW A TREE',W/2,266,12,'#f1e5af');
+      text(`FINAL SCORE: ${score}    TIME LEFT: ${Math.ceil(timeLeft/60)}s`,W/2,294,13,'#f1e5af');
+      text('FIELD REPORT COMPLETE',W/2,318,12,'#f1e5af');
     } else {
       text('ALL 8 PLANTING SITES ARE READY FOR THE FOREST',W/2,266,13,'#f1e5af');
       text(`FINAL SCORE: ${score}    TIME LEFT: ${Math.ceil(timeLeft/60)}s`,W/2,294,13,'#f1e5af');
       text('YOU TURNED A BARREN PATCH INTO A FOREST',W/2,318,12,'#f1e5af');
     }
-    text(prompt,W/2,344,15,'#9fe17a');
+    text(prompt,W/2,354,15,'#9fe17a');
+  }
+
+  function drawDialogue() {
+    const phoneLayout = canvas.getBoundingClientRect().width < 560;
+    const page = DIALOGUE_PAGES[Math.min(dialoguePage, DIALOGUE_PAGES.length - 1)];
+    if (phoneLayout) {
+      rect(62,91,836,342,'#1e382d'); rect(70,99,820,326,'#284c38');
+      rect(88,115,784,2,'#91bd6c'); rect(88,408,784,2,'#91bd6c');
+      text(page.title,W/2,151, page.title.length>22?16:21,'#e2f4b8');
+      page.lines.forEach((line,i) => text(line,W/2,208+i*43, line.length>48?9:11, i===0 && dialoguePage===1 ? '#ffdf9c' : '#f1e5af'));
+      text(`REPORT ${dialoguePage+1}/${DIALOGUE_PAGES.length}`,W/2,365,10,'#b6c9a3');
+      text('TAP OR PRESS ENTER TO CONTINUE',W/2,395,10,'#9fe17a');
+    } else {
+      rect(145,112,670,270,'#1e382d'); rect(153,120,654,254,'#284c38');
+      rect(170,134,620,2,'#91bd6c'); rect(170,368,620,2,'#91bd6c');
+      text(page.title,W/2,177,page.title.length>24?22:28,'#e2f4b8');
+      page.lines.forEach((line,i) => text(line,W/2,235+i*32, line.length>54?11:13, i===0 && dialoguePage===1 ? '#ffdf9c' : '#f1e5af'));
+      text(`FIELD REPORT ${dialoguePage+1}/${DIALOGUE_PAGES.length}`,W/2,326,11,'#b6c9a3');
+      text('CLICK, PRESS ENTER, OR TAP TO CONTINUE',W/2,354,12,'#9fe17a');
+    }
   }
 
   function render() {
     drawBackground();
-    if (state==='playing' && phase==='soil') drawTargets();
+    if (state==='playing' && (phase==='soil' || phase==='seedbomb')) drawTargets();
     holes.forEach(drawHole);
+    if (level === 2) {
+      seedbombHits.forEach(hit => {
+        rect(hit.x-8,hit.y-2,16,4,'#5d432d'); rect(hit.x-4,hit.y-6,8,4,'#b99a60');
+        rect(hit.x-1,hit.y-9,2,3,'#83b45c');
+      });
+    }
     pods.forEach(drawPod); saplings.forEach(drawSapling);
     particles.forEach(p=>{ctx.globalAlpha=Math.min(1,p.life/12);rect(p.x,p.y,p.size,p.size,p.color);}); ctx.globalAlpha=1;
-    if(drone) drawDrone();
+    if (seedbombTree && (state==='seedbombCelebrating' || state==='dialogue' || (state==='won' && level===2))) {
+      const growth = state==='seedbombCelebrating' ? clamp((victoryTimer-24)/112,0,1) : 1;
+      drawGrowingTree(seedbombTree,growth);
+    }
+    if(drone && state==='playing') drawDrone();
     if(state==='playing') {
       drawStatus();
-      if(messageTimer>0) { rect(230,465,500,32,'#20392d'); text(message,W/2,486,12,'#fff0b5'); }
-      if(phase==='plant') holes.filter(h=>!h.planted).forEach(h=>{ rect(h.x-3,GROUND+16,6,5,'#f5e5a0'); });
+      if(messageTimer>0) { rect(190,465,580,32,'#20392d'); text(message,W/2,486,12,'#fff0b5'); }
+      if(phase==='plant') holes.filter(h=>!h.planted).forEach(h=>{ rect(h.x-3,h.y+16,6,5,'#f5e5a0'); });
     }
     if(state==='title') drawOverlay('SAPLING DROPPERS',`${settings().label} MODE · ${settings().seconds}s · ${settings().description.split('·')[0].trim()}`,canvas.getBoundingClientRect().width < 560 ? 'TAP THE GAME TO START' : 'SELECT A MODE ABOVE · PRESS ENTER OR CLICK TO START');
     if(state==='lost') drawOverlay('MISSION FAILED',message,'PRESS ENTER OR RESTART TO TRY AGAIN');
-    if(state==='won') drawOverlay('FOREST RESTORED!','8 SOIL PODS. 8 SAPLINGS. A FRESH START.','PRESS ENTER OR RESTART TO PLAY AGAIN');
+    if(state==='celebrating') {
+      rect(246,470,468,31,'#20392d');
+      text('LEVEL 1 COMPLETE · WATCH YOUR FOREST GROW',W/2,490,12,'#e2f4b8');
+      drawStatus();
+    }
+    if(state==='seedbombCelebrating') {
+      rect(242,470,476,31,'#20392d');
+      text('ONLY ONE OF THE SEEDBOMB SITES ESTABLISHES',W/2,490,11,'#e2f4b8');
+      drawStatus();
+    }
+    if(state==='dialogue') drawDialogue();
+    if(state==='won') {
+      if (level === 2) drawOverlay('CAMPAIGN COMPLETE','ONE SEEDBOMB TREE SURVIVED THE TRIAL','PRESS ENTER OR RESTART TO PLAY AGAIN');
+      else drawOverlay('FOREST RESTORED!','8 SOIL PODS. 8 SAPLINGS. A FRESH START.','PRESS ENTER OR RESTART TO PLAY AGAIN');
+    }
   }
 
   function loop() { update(); render(); requestAnimationFrame(loop); }
   // Initialize all state before the first HUD update or animation frame.
   drone = {x:145,y:180,vx:0,vy:0,prop:0};
   pods = []; saplings = []; holes = []; particles = [];
-  frame = 0; message = ''; messageTimer = 0; cooldown = 0; score = 0;
+  level = 1; seedbombAttempts = 0; seedbombHits = []; seedbombTree = null; dialoguePage = 0;
+  frame = 0; message = ''; messageTimer = 0; cooldown = 0; score = 0; victoryTimer = 0;
   soilAttempts = 0; plantAttempts = 0; misses = 0; timeLeft = settings().seconds*60; wind = 0; windBase = 0; windTarget = 0; gust=0; gustTimer=0; windShiftTimer=0;
+  generateWorld();
   syncModePicker();
   updateHud();
   loop();
