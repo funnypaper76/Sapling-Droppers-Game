@@ -22,6 +22,9 @@
   .mode-button { padding:8px 12px; font-size:11px; border-width:1px; border-bottom-width:3px; background:#283f34; border-color:#58744e; }
   .mode-button[aria-pressed="true"] { color:#172318; background:#bde58b; border-color:#e0f8b3; box-shadow:0 0 0 2px #496b43 inset; }
   .mode-description { color:#b6c9a3; font-size:10px; margin-left:auto; }
+  .global-plays { color:#b6c9a3; font-size:10px; letter-spacing:1px; white-space:nowrap; margin-left:auto; }
+  .global-plays strong { color:#d7f6a6; font-size:14px; margin-left:5px; }
+  @media (max-width:650px) { .global-plays { grid-column:1/-1; text-align:center; margin:2px 0 0; } }
   canvas { display:block; width:100%; height:auto; aspect-ratio:16 / 9; image-rendering:pixelated; image-rendering:crisp-edges; }
   .hud { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; padding:14px 4px 0; }
   .stat { color:#c1d2b1; font-size:11px; line-height:1.65; }
@@ -154,6 +157,7 @@
     <button class="mode-button" type="button" data-mode="challenge" aria-pressed="false">CHALLENGE</button>
     <button class="mode-button" type="button" data-mode="gale" aria-pressed="false">GALE</button>
     <span id="modeDescription" class="mode-description">Gentle breeze · 105 seconds · forgiving aim</span>
+    <span class="global-plays" aria-live="polite">GLOBAL PLAYS <strong id="globalPlays">…</strong></span>
   </nav>
   <section class="screen" aria-label="Sapling Droppers browser game">
     <canvas id="game" width="960" height="540" aria-label="Sapling Droppers game area. Tap the screen to start, then use the large touch controls below to fly, drop soil pods, plant saplings, and release seedbombs." role="img" tabindex="0"></canvas>
@@ -370,7 +374,34 @@
     updateHud();
   }
 
-  function startOrRestart() { reset(); }
+  async function recordGlobalPlay() {
+    const display = document.getElementById('globalPlays');
+    try {
+      const roundId = crypto.randomUUID();
+      const response = await fetch('/api/plays', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({roundId})
+      });
+      if (!response.ok) throw new Error('Counter unavailable');
+      const data = await response.json();
+      display.textContent = Number(data.plays || 0).toLocaleString();
+    } catch (_) {
+      display.textContent = 'OFFLINE';
+    }
+  }
+  async function refreshGlobalPlays() {
+    const display = document.getElementById('globalPlays');
+    try {
+      const response = await fetch('/api/plays', {cache:'no-store'});
+      if (!response.ok) throw new Error('Counter unavailable');
+      const data = await response.json();
+      display.textContent = Number(data.plays || 0).toLocaleString();
+    } catch (_) {
+      display.textContent = '—';
+    }
+  }
+  function startOrRestart() { reset(); recordGlobalPlay(); }
   document.getElementById('restart').addEventListener('click', startOrRestart);
   function syncModePicker() {
     document.querySelectorAll('[data-mode]').forEach(button => {
@@ -963,6 +994,8 @@
   generateWorld();
   syncModePicker();
   updateHud();
+  refreshGlobalPlays();
+  window.setInterval(refreshGlobalPlays, 15000);
   loop();
 })();
 </script>
