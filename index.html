@@ -412,7 +412,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.7 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.8 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option></select>
@@ -465,11 +465,11 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.7</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.8</div>
       <div class="update-log-list">
-        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_25">ENTISH SPEECH & MULTILINGUAL UPDATE LOG</div><p data-i18n-key="LOG_DESC_25">Expanded Entish into longer, winding speech and repaired update-log translations for every supported language.</p></article>
+        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_25">ENTISH SPEECH & UPDATE LOG REPAIR</div><p data-i18n-key="LOG_DESC_25">Expanded Entish into longer speech, repaired translations in all ten languages, and restored update-log formatting.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_24">OLD ENTISH SPEECH STYLE</div><p data-i18n-key="LOG_DESC_24">Added an original, slow and ancient woodland-guardian speech style.</p></article>
-        <article> class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_23">TEAM NAME BRANDING</div><p data-i18n-key="LOG_DESC_23">Standardised the team name across the website as “by the bio blazers”.</p></article>
+        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_23">TEAM NAME BRANDING</div><p data-i18n-key="LOG_DESC_23">Standardised the team name across the website as “by the bio blazers”.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_22">THREE ENGLISH SPEECH STYLES</div><p data-i18n-key="LOG_DESC_22">Added archaic, over-the-top British, and pirate-style English to the language selector.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_21">UPDATE LOG TRANSLATION INDEX FIX</div><p data-i18n-key="LOG_DESC_21">Each history item now uses its own translation key so titles and descriptions stay matched in every language.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_20">COMPLETE LANGUAGE COVERAGE</div><p data-i18n-key="LOG_DESC_20">Translated the remaining game text across all ten supported languages.</p></article>
@@ -665,13 +665,13 @@
   Object.assign(LANGUAGE_TEXT,{"LOG_TITLE_24":["HABLA DE LOS ANTIGUOS ÁRBOLES","PARLER DES ANCIENS ARBRES","SPRACHE DER ALTEN BÄUME"],"LOG_DESC_24":["Se añadió un estilo original de habla lenta y antigua, inspirado en los guardianes del bosque.","Ajout d’un style original, lent et ancien, inspiré des gardiens de la forêt.","Ein eigener, langsamer, alter Sprachstil nach dem Vorbild von Waldhütern wurde hinzugefügt."]});
   Object.entries({"pt":{"LOG_TITLE_24":"FALA DAS ÁRVORES ANCIÃS","LOG_DESC_24":"Foi adicionado um estilo original, lento e antigo, inspirado nos guardiões da floresta."},"it":{"LOG_TITLE_24":"LINGUAGGIO DEGLI ANTICHI ALBERI","LOG_DESC_24":"Aggiunto uno stile originale, lento e antico, ispirato ai custodi della foresta."},"ja":{"LOG_TITLE_24":"古き樹木の話し方","LOG_DESC_24":"森の守り手をイメージした、ゆっくりとした古風なオリジナル話法を追加しました。"},"zh":{"LOG_TITLE_24":"古树语言风格","LOG_DESC_24":"新增一种灵感来自森林守护者的原创、缓慢而古老的说话风格。"},"ko":{"LOG_TITLE_24":"고목 말투 추가","LOG_DESC_24":"숲의 수호자에게서 영감을 받은 느리고 오래된 느낌의 독창적인 말투를 추가했습니다."},"nl":{"LOG_TITLE_24":"SPRAAK VAN OUDE BOMEN","LOG_DESC_24":"Een eigen, langzame en oude spreekstijl geïnspireerd op boswachters is toegevoegd."}}).forEach(([code,translations])=>Object.assign(ADDITIONAL_LANGUAGE_TEXT[code],translations));
 
-  Object.assign(LANGUAGE_TEXT,{"LOG_TITLE_25":["HABLA ENTISH Y REGISTRO MULTILINGÜE","PARLER ENTISH ET JOURNAL MULTILINGUE","ENTISCHE SPRACHE UND MEHRSPRACHIGES PROTOKOLL"],"LOG_DESC_25":["Se ampliaron las frases de estilo Entish y se corrigieron los paquetes de traducción del registro para los diez idiomas.","Les phrases du style Entish ont été allongées et les dictionnaires du journal ont été corrigés pour les dix langues.","Die Entisch-Texte wurden verlängert und die Übersetzungsdaten des Änderungsprotokolls für alle zehn Sprachen wurden repariert."]});
-  Object.assign(ADDITIONAL_LANGUAGE_TEXT.pt,{"LOG_TITLE_25":"FALA ENTISH E REGISTRO MULTILÍNGUE","LOG_DESC_25":"As frases no estilo Entish foram alongadas e os pacotes de tradução do histórico foram corrigidos para os dez idiomas."});
-  Object.assign(ADDITIONAL_LANGUAGE_TEXT.it,{"LOG_TITLE_25":"LINGUAGGIO ENTISH E REGISTRO MULTILINGUE","LOG_DESC_25":"Le frasi in stile Entish sono state allungate e i pacchetti di traduzione del registro sono stati corretti per tutte e dieci le lingue."});
-  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ja,{"LOG_TITLE_25":"エンティッシュの長い話し方と履歴の多言語修正","LOG_DESC_25":"エンティッシュ風の文章を長くし、10言語すべてで更新履歴の翻訳データを修正しました。"});
-  Object.assign(ADDITIONAL_LANGUAGE_TEXT.zh,{"LOG_TITLE_25":"树人风格长句与多语言日志修复","LOG_DESC_25":"加长了树人风格的表达，并修复了全部十种语言的更新日志翻译数据。"});
-  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ko,{"LOG_TITLE_25":"엔트 말투 확장 및 다국어 기록 수정","LOG_DESC_25":"엔트풍 문장을 더 길게 만들고 열 가지 언어의 업데이트 기록 번역 데이터를 수정했습니다."});
-  Object.assign(ADDITIONAL_LANGUAGE_TEXT.nl,{"LOG_TITLE_25":"ENTISCHE SPRAAK EN MEERTALIG LOGBOEK","LOG_DESC_25":"De Entische zinnen zijn langer gemaakt en de vertaalgegevens van het wijzigingslog zijn voor alle tien talen hersteld."});
+  Object.assign(LANGUAGE_TEXT,{"LOG_TITLE_25":["HABLA ENTISH Y REPARACIÓN DEL REGISTRO","PARLER ENTISH ET RÉPARATION DU JOURNAL","ENTISCHE SPRACHE UND PROTOKOLLREPARATUR"],"LOG_DESC_25":["Se ampliaron las frases de estilo Entish y se corrigieron las traducciones y el formato del registro en los diez idiomas.","Les phrases du style Entish ont été allongées et les traductions ainsi que la mise en page du journal ont été corrigées dans les dix langues.","Die Entisch-Texte wurden verlängert und die Übersetzungen sowie das Layout des Protokolls in allen zehn Sprachen repariert."]});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.pt,{"LOG_TITLE_25":"FALA ENTISH E REPARO DO HISTÓRICO","LOG_DESC_25":"As frases no estilo Entish foram alongadas, e as traduções e a formatação do histórico foram corrigidas nos dez idiomas."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.it,{"LOG_TITLE_25":"LINGUAGGIO ENTISH E CORREZIONE DEL REGISTRO","LOG_DESC_25":"Le frasi in stile Entish sono state allungate e le traduzioni e la formattazione del registro sono state corrette in tutte e dieci le lingue."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ja,{"LOG_TITLE_25":"エンティッシュの長い話し方と履歴の修正","LOG_DESC_25":"エンティッシュ風の文章を長くし、10言語すべてで更新履歴の翻訳と表示形式を修正しました。"});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.zh,{"LOG_TITLE_25":"树人风格长句与多语言日志修复","LOG_DESC_25":"加长了树人风格的表达，并修复了全部十种语言的更新日志翻译和排版。 "});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ko,{"LOG_TITLE_25":"엔트 말투 확장 및 다국어 기록 수정","LOG_DESC_25":"엔트풍 문장을 더 길게 만들고 열 가지 언어의 업데이트 기록 번역과 표시 형식을 수정했습니다."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.nl,{"LOG_TITLE_25":"ENTISCHE SPRAAK EN HERSTEL VAN HET WIJZIGINGSLOG","LOG_DESC_25":"De Entische zinnen zijn langer gemaakt en de vertalingen en opmaak van het wijzigingslog zijn voor alle tien talen hersteld."});
   const LANG_NAMES={en:"English",es:"Español",fr:"Français",de:"Deutsch",pt:"Português",it:"Italiano",ja:"日本語",zh:"中文（简体）",ko:"한국어",nl:"Nederlands",old:"Old English",british:"Extremely British",pirate:"Pirate Speak",entish:"Old Entish"};
   const LANG_KEY="sapling-droppers-language-v1";
   function detectLanguage(){try{const saved=localStorage.getItem(LANG_KEY);if(saved&&LANG_NAMES[saved])return saved}catch(_){}const code=(navigator.language||"en").slice(0,2).toLowerCase();return LANG_NAMES[code]?code:"en"}
@@ -995,7 +995,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = tr(settings().description);
-    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.7 · ${tr(settings().label)} ${tr('MODE')}`;
+    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.8 · ${tr(settings().label)} ${tr('MODE')}`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
