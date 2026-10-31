@@ -149,7 +149,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bio Blazers</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.0 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.1 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <span class="mode-label">WIND PROFILE</span>
@@ -251,6 +251,7 @@
   const plantedCount = () => holes.filter(h => h.planted).length;
   const targetUsed = index => level === 2 ? seedbombHits.some(hit => hit.targetIndex === index) : holes.some(h => h.targetIndex === index);
   const groundTexture = [];
+  const rocks = [];
   function generateWorld() {
     // Walk a constrained random profile so the ground changes noticeably but stays playable.
     const segments = 13;
@@ -267,6 +268,21 @@
       const snappedX = Math.round(x);
       return {index:i, x:snappedX, y:terrainAt(snappedX)};
     }).sort((a,b) => a.x - b.x);
+
+    // Scatter chunky boulders along the surface, away from the marked landing sites.
+    rocks.length = 0;
+    let attempts = 0;
+    while (rocks.length < 8 && attempts < 120) {
+      attempts++;
+      const x = Math.round(rand(38, W-38));
+      const blockedByTarget = TARGETS.some(t => Math.abs(t.x-x) < 42);
+      const crowded = rocks.some(r => Math.abs(r.x-x) < 66);
+      if (blockedByTarget || crowded) continue;
+      const w = Math.round(rand(22,34));
+      const h = Math.round(rand(11,18));
+      rocks.push({x, y:terrainAt(x), w, h, shade:Math.random() < .5 ? 0 : 1});
+    }
+
     // Reset decorative soil flecks against the new terrain as well.
     groundTexture.length = 0;
     for (let x = 12; x < W; x += 30) {
@@ -409,7 +425,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = settings().description;
-    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.0 · ${settings().label} MODE`;
+    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.1 · ${settings().label} MODE`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
@@ -545,7 +561,7 @@
       const bomb = makeWindborne('seedbomb',drone.x,drone.y+14,1.25);
       bomb.vx = clamp(drone.vx*.34 + wind*.28,-1.8,1.8);
       pods.push(bomb);
-      puff(drone.x,drone.y+21,'#c6a56c',5);
+      airPuff(drone.x,drone.y+22);
       message = `SEEDBOMB ${seedbombAttempts}/${settings().maxAttempts} RELEASED`;
       messageTimer = 45;
     }
@@ -554,6 +570,18 @@
 
   function puff(x,y,color,n) {
     for(let i=0;i<n;i++) particles.push({x,y,vx:rand(-1.7,1.7),vy:rand(-2.5,.5),life:rand(12,26),color,size:rand(2,5)});
+  }
+
+  function airPuff(x,y) {
+    const shades = ['#f3f6e8','#dce9e4','#c4d9d6'];
+    for (let i=0;i<9;i++) {
+      particles.push({
+        x:x+rand(-5,5), y:y+rand(-3,3),
+        vx:rand(-1.65,1.65), vy:rand(-2.1,-.35),
+        life:rand(11,19), maxLife:19, color:shades[i%shades.length],
+        size:rand(4,8), kind:'air'
+      });
+    }
   }
 
   function gameOver(reason) {
@@ -650,6 +678,12 @@
       const impactGround = terrainAt(p.x);
       if (p.y >= impactGround-5) {
         p.y = impactGround-5; p.dead = true;
+        const rock = rocks.find(r => Math.abs(r.x-p.x) <= r.w*.48 + 2);
+        if (rock) {
+          puff(p.x,impactGround-5,'#9a9a8d',7);
+          if (registerMiss('ROCK IMPACT! AVOID THE STONES')) return;
+          return;
+        }
         puff(p.x,impactGround-5,'#b78b4a',8);
         if (p.kind === 'soil') {
           const available = TARGETS.filter(t => !targetUsed(t.index));
@@ -776,6 +810,22 @@
     ctx.strokeStyle='#d1a65b'; ctx.lineWidth=5; ctx.stroke();
     for(let x=0;x<W;x+=11) { const y=terrainAt(x); rect(x,y-5,3,6,(x%3?'#527f43':'#67964a')); }
     groundTexture.forEach(speck => rect(speck.x, speck.y, speck.w, speck.h, speck.color));
+    drawRocks();
+  }
+
+  function drawRocks() {
+    rocks.forEach(r => {
+      const x = Math.round(r.x), y = Math.round(r.y);
+      const top = y-r.h;
+      const dark = r.shade ? '#454a46' : '#555a55';
+      const mid = r.shade ? '#737971' : '#85897f';
+      const light = r.shade ? '#a2a79a' : '#b1b3a5';
+      rect(x-r.w*.42,top+r.h*.38,r.w*.84,r.h*.62,dark);
+      rect(x-r.w*.34,top+r.h*.22,r.w*.68,r.h*.62,mid);
+      rect(x-r.w*.20,top,r.w*.40,r.h*.38,light);
+      rect(x-r.w*.12,top+r.h*.18,r.w*.16,r.h*.13,'#d0d0c1');
+      rect(x-r.w*.38,y-2,r.w*.76,3,'#3b403b');
+    });
   }
 
   function drawTargets() {
@@ -954,7 +1004,18 @@
       });
     }
     pods.forEach(drawPod); saplings.forEach(drawSapling);
-    particles.forEach(p=>{ctx.globalAlpha=Math.min(1,p.life/12);rect(p.x,p.y,p.size,p.size,p.color);}); ctx.globalAlpha=1;
+    particles.forEach(p=>{
+      ctx.globalAlpha=Math.min(1,p.life/(p.maxLife || 12));
+      if (p.kind === 'air') {
+        const age = 1-p.life/(p.maxLife || 19);
+        const size = p.size*(.7+age*.45);
+        rect(p.x-size*.5,p.y-size*.5,size,size,p.color);
+        rect(p.x-size*.8,p.y-size*.12,size*.55,size*.32,p.color);
+      } else {
+        rect(p.x,p.y,p.size,p.size,p.color);
+      }
+    });
+    ctx.globalAlpha=1;
     if (seedbombTree && (state==='seedbombCelebrating' || state==='dialogue' || (state==='won' && level===2))) {
       const growth = state==='seedbombCelebrating' ? clamp((victoryTimer-24)/112,0,1) : 1;
       drawGrowingTree(seedbombTree,growth);
