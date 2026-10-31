@@ -149,7 +149,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bio Blazers</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.1 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.2 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <span class="mode-label">WIND PROFILE</span>
@@ -272,11 +272,11 @@
     // Scatter chunky boulders along the surface, away from the marked landing sites.
     rocks.length = 0;
     let attempts = 0;
-    while (rocks.length < 8 && attempts < 120) {
+    while (rocks.length < 4 && attempts < 300) {
       attempts++;
       const x = Math.round(rand(38, W-38));
-      const blockedByTarget = TARGETS.some(t => Math.abs(t.x-x) < 42);
-      const crowded = rocks.some(r => Math.abs(r.x-x) < 66);
+      const blockedByTarget = TARGETS.some(t => Math.abs(t.x-x) < 48);
+      const crowded = rocks.some(r => Math.abs(r.x-x) < 92);
       if (blockedByTarget || crowded) continue;
       const w = Math.round(rand(22,34));
       const h = Math.round(rand(11,18));
@@ -425,7 +425,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = settings().description;
-    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.1 · ${settings().label} MODE`;
+    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.2 · ${settings().label} MODE`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
@@ -573,13 +573,14 @@
   }
 
   function airPuff(x,y) {
+    // Fewer, larger square particles create a chunky pixel-cloud burst.
     const shades = ['#f3f6e8','#dce9e4','#c4d9d6'];
-    for (let i=0;i<9;i++) {
+    for (let i=0;i<7;i++) {
       particles.push({
-        x:x+rand(-5,5), y:y+rand(-3,3),
-        vx:rand(-1.65,1.65), vy:rand(-2.1,-.35),
-        life:rand(11,19), maxLife:19, color:shades[i%shades.length],
-        size:rand(4,8), kind:'air'
+        x:x+rand(-4,4), y:y+rand(-3,3),
+        vx:rand(-1.35,1.35), vy:rand(-1.9,-.25),
+        life:rand(12,20), maxLife:20, color:shades[i%shades.length],
+        size:rand(7,11), kind:'air'
       });
     }
   }
@@ -1007,10 +1008,13 @@
     particles.forEach(p=>{
       ctx.globalAlpha=Math.min(1,p.life/(p.maxLife || 12));
       if (p.kind === 'air') {
-        const age = 1-p.life/(p.maxLife || 19);
-        const size = p.size*(.7+age*.45);
-        rect(p.x-size*.5,p.y-size*.5,size,size,p.color);
-        rect(p.x-size*.8,p.y-size*.12,size*.55,size*.32,p.color);
+        const age = 1-p.life/(p.maxLife || 20);
+        const size = Math.round(p.size*(.85+age*.22));
+        const px = Math.round(p.x), py = Math.round(p.y);
+        rect(px-Math.floor(size/2),py-Math.floor(size/2),size,size,p.color);
+        // A second square makes the cloud read as a stepped pixel puff.
+        const chip = Math.max(3,Math.round(size*.45));
+        rect(px-Math.round(size*.72),py-Math.round(size*.12),chip,chip,p.color);
       } else {
         rect(p.x,p.y,p.size,p.size,p.color);
       }
