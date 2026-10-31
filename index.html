@@ -309,6 +309,66 @@
     margin-top:13px; color:#79927c;
     font-size:9px; letter-spacing:2px;
   }
+  .update-log-button {
+    display:block; min-width:190px; margin:11px auto 0;
+    padding:8px 15px; border:2px solid #6e9572; border-bottom-width:4px;
+    background:#283f34; color:#d7f6a6;
+    box-shadow:3px 3px #08120d;
+    font-size:10px; letter-spacing:1.5px;
+  }
+  .update-log-button:hover { background:#355644; }
+  .update-log-backdrop[hidden] { display:none !important; }
+  .update-log-backdrop {
+    position:fixed; inset:0; z-index:1000;
+    display:flex; align-items:center; justify-content:center;
+    padding:18px; background:#07110edb;
+  }
+  .update-log-panel {
+    width:min(100%,720px); max-height:min(84vh,760px);
+    overflow:auto; padding:20px;
+    border:3px solid #66865a; outline:3px solid #0b1512;
+    background:#1b3028; color:#eff3cc;
+    box-shadow:8px 8px #08120d;
+  }
+  .update-log-heading {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    gap:12px; padding-bottom:13px; border-bottom:2px solid #49624a;
+  }
+  .update-log-kicker {
+    color:#f3d97c; font-size:9px; letter-spacing:2px;
+  }
+  .update-log-heading h2 {
+    margin:6px 0 0; color:#d7f6a6;
+    font-size:clamp(17px,3.6vw,24px); line-height:1.2;
+  }
+  .update-log-close {
+    flex:0 0 auto; width:36px; height:36px; padding:0;
+    border-color:#8fb66c; background:#283f34;
+    font-size:25px; line-height:1;
+  }
+  .update-log-current {
+    display:inline-block; margin:14px 0 4px; padding:5px 8px;
+    border:1px solid #58744e; color:#d7f6a6;
+    font-size:10px; letter-spacing:1.2px;
+  }
+  .update-log-list { display:grid; gap:0; }
+  .update-entry {
+    padding:13px 2px; border-bottom:1px solid #405a46;
+  }
+  .update-entry-title {
+    color:#f3d97c; font-size:11px; font-weight:900;
+    letter-spacing:1.2px;
+  }
+  .update-entry p {
+    margin:6px 0 0; color:#c1d2b1;
+    font-size:12px; line-height:1.65;
+  }
+  .update-entry-note .update-entry-title { color:#b5c5b0; }
+  .update-entry-note p { color:#a6b49e; }
+  .update-log-footer {
+    padding-top:14px; color:#79927c;
+    font-size:9px; text-align:center; letter-spacing:1.4px;
+  }
   @media (max-width:650px) {
     .game-cover { margin-bottom:12px; }
     .cover-scene { height:190px; }
@@ -317,6 +377,10 @@
     .cover-copy h1 { font-size:clamp(23px,7vw,34px); letter-spacing:1px; }
     .cover-copy p { font-size:10px; letter-spacing:1px; }
     .play-button { min-width:170px; min-height:54px; font-size:17px; }
+    .update-log-button { min-width:170px; min-height:40px; }
+    .update-log-backdrop { padding:9px; }
+    .update-log-panel { max-height:88vh; padding:14px; }
+    .update-entry p { font-size:11px; }
   }
 
 </style>
@@ -325,7 +389,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bio Blazers</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.4 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.5 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <span class="mode-label">WIND PROFILE</span>
@@ -363,7 +427,67 @@
       <h1>SAPLING DROPPERS</h1>
       <p>PLANT A FOREST. BEAT THE WIND.</p>
       <button id="playGame" class="play-button" type="button">▶ &nbsp; PLAY</button>
+      <button id="openUpdateLog" class="update-log-button" type="button">▤ &nbsp; UPDATE LOG</button>
       <div class="cover-footnote">A PIXEL REFORESTATION ARCADE GAME</div>
+    </div>
+  </section>
+  <section id="updateLog" class="update-log-backdrop" role="dialog" aria-modal="true" aria-labelledby="updateLogTitle" hidden>
+    <div class="update-log-panel">
+      <div class="update-log-heading">
+        <div>
+          <div class="update-log-kicker">BIO BLAZERS DEVELOPMENT NOTES</div>
+          <h2 id="updateLogTitle">SAPLING DROPPERS · UPDATE LOG</h2>
+        </div>
+        <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log">×</button>
+      </div>
+      <div class="update-log-current">CURRENT BUILD · 1.6.5</div>
+      <div class="update-log-list">
+        <article class="update-entry">
+          <div class="update-entry-title">THE ORIGINAL GAME</div>
+          <p>Started as a retro 2D drone reforestation game. Fly across the field, prepare eight ground sites with soil pods, then plant saplings and grow a new forest.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">WIND, DIFFICULTY & TERRAIN</div>
+          <p>Added Normal, Challenge and Gale wind profiles, changing gusts for individual falling objects, a mission timer, three-miss limit, and randomized hills and planting-marker positions.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">TWO-LEVEL CAMPAIGN</div>
+          <p>Added the Level 1 forest-growth celebration and a Level 2 seedbomb trial. The campaign ends with a one-tree seedbomb cutscene and a field report explaining the project's illustrative survival-rate comparison.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">MOBILE & DOWNLOAD SUPPORT</div>
+          <p>Added touch controls for phones and tablets, responsive layouts, keyboard controls, and a button to download a standalone copy of the game.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">GLOBAL PLAY COUNTER</div>
+          <p>Connected the game to a shared counter using a Vercel API route and Upstash storage, so visitors can see the global number of campaign starts.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">BIO BLAZERS BRANDING</div>
+          <p>Changed the creator credit from By the Bark Knights to By the Bio Blazers.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">ROCK HAZARDS</div>
+          <p>Added dangerous rocks to each stage. Landing on one counts as a miss. The first version had too many, so the number was reduced from eight to four with more space between them.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">SEEDBOMB AIR PUFF</div>
+          <p>Added an animated air puff when a seedbomb is released, then made its particles larger and chunkier to match the game's pixel-art look.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">LEVEL 2 DRONE</div>
+          <p>Designed a separate olive-and-gold seed-spreader drone for the seedbomb stage, while keeping the original planting drone for Level 1.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">TITLE COVER</div>
+          <p>Added the Bio Blazers cover screen, pixel-art drone and forest scene, and a large Play button. Added a tiny ChatGPT credit noting that the game was made with prompts from a human.</p>
+        </article>
+        <article class="update-entry update-entry-note">
+          <div class="update-entry-title">BIOME EXPERIMENT · ROLLED BACK</div>
+          <p>Tested tropical, desert and snowy environments with different trees. The alternate tree styles did not match the original simple look, so the experiment was reverted and the classic forest was restored.</p>
+        </article>
+      </div>
+      <div class="update-log-footer">MADE BY THE BIO BLAZERS · THANKS FOR PLAYING</div>
     </div>
   </section>
   <section class="screen" aria-label="Sapling Droppers browser game">
@@ -630,6 +754,25 @@
     recordGlobalPlay();
   }
   document.getElementById('playGame').addEventListener('click', startOrRestart);
+  const updateLog = document.getElementById('updateLog');
+  const openUpdateLog = document.getElementById('openUpdateLog');
+  const closeUpdateLog = document.getElementById('closeUpdateLog');
+  function showUpdateLog() {
+    updateLog.hidden = false;
+    closeUpdateLog.focus();
+  }
+  function hideUpdateLog() {
+    updateLog.hidden = true;
+    openUpdateLog.focus();
+  }
+  openUpdateLog.addEventListener('click', showUpdateLog);
+  closeUpdateLog.addEventListener('click', hideUpdateLog);
+  updateLog.addEventListener('click', event => {
+    if (event.target === updateLog) hideUpdateLog();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !updateLog.hidden) hideUpdateLog();
+  });
   document.getElementById('restart').addEventListener('click', startOrRestart);
   function syncModePicker() {
     document.querySelectorAll('[data-mode]').forEach(button => {
@@ -637,7 +780,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = settings().description;
-    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.4 · ${settings().label} MODE`;
+    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.5 · ${settings().label} MODE`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
