@@ -149,7 +149,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bark Knights</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.0 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.0 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <span class="mode-label">WIND PROFILE</span>
@@ -250,46 +250,29 @@
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   const plantedCount = () => holes.filter(h => h.planted).length;
   const targetUsed = index => level === 2 ? seedbombHits.some(hit => hit.targetIndex === index) : holes.some(h => h.targetIndex === index);
-  const BIOMES = [
-    {id:'temperate',label:'TEMPERATE GROVE',treeType:'deciduous',sky:'#8fc4a1',haze:'#a8d8a4',far:'#5b9878',mid:'#39745c',ground:'#8b5b3b',soil:'#6e482f',surface:'#d1a65b',grass:'#67964a',speckA:'#a9784e',speckB:'#70462f',trees:['#2d7f43','#39964c','#65b75c'],trunk:'#79502f',highlight:'#b0dc78'},
-    {id:'tropical',label:'TROPICAL RAINFOREST',treeType:'palm',sky:'#79bfae',haze:'#a5d8b2',far:'#4e9a78',mid:'#286b55',ground:'#80513c',soil:'#5a3a31',surface:'#c39b65',grass:'#4f8c4e',speckA:'#a8794d',speckB:'#5d3c2d',trees:['#176b45','#238653','#56b86a'],trunk:'#765039',highlight:'#a6df70'},
-    {id:'desert',label:'SUNBAKED DESERT',treeType:'acacia',sky:'#edc98a',haze:'#f2dca2',far:'#d4a86d',mid:'#b98950',ground:'#bd8951',soil:'#93643d',surface:'#e5bd75',grass:'#ad9b46',speckA:'#d4a263',speckB:'#805536',trees:['#687b3e','#87964b','#b0ad5c'],trunk:'#79502f',highlight:'#d5cf78'},
-    {id:'alpine',label:'SNOWY HIGHLANDS',treeType:'pine',sky:'#a8c5d8',haze:'#d7e6e9',far:'#7c9baa',mid:'#526f78',ground:'#8e7968',soil:'#5d514b',surface:'#e2e6dc',grass:'#78956c',speckA:'#b4b8aa',speckB:'#665d57',trees:['#244e43','#326b53','#548c68'],trunk:'#684c38',highlight:'#e8f0df'}
-  ];
-  let activeBiome = null;
   const groundTexture = [];
-
   function generateWorld() {
-    // Each campaign stage gets a different biome, with terrain shaped to match it.
-    const choices = BIOMES.filter(b => !activeBiome || b.id !== activeBiome.id);
-    activeBiome = choices[Math.floor(Math.random() * choices.length)];
-    const segments = 17;
+    // Walk a constrained random profile so the ground changes noticeably but stays playable.
+    const segments = 13;
     terrainPoints = [];
     let elevation = GROUND + rand(-5, 5);
-    const dunePhase = rand(0, Math.PI * 2);
     for (let i = 0; i < segments; i++) {
-      if (activeBiome.id === 'desert') {
-        elevation = clamp(432 + Math.sin(i * .72 + dunePhase) * 19 + rand(-3, 3), 410, 466);
-      } else {
-        const step = activeBiome.id === 'alpine' ? 23 : activeBiome.id === 'tropical' ? 12 : 16;
-        if (i > 0) elevation = clamp(elevation + rand(-step, step), 410, 468);
-      }
+      if (i > 0) elevation = clamp(elevation + rand(-15, 15), 414, 466);
       terrainPoints.push({x:i * W / (segments - 1), y:elevation});
     }
-
-    // Keep all eight targets spread across the playable width.
+    // Jitter one target inside each horizontal sector: all eight remain spread across the level.
     TARGETS = Array.from({length: TOTAL}, (_, i) => {
       const sector = W / TOTAL;
       const x = clamp((i + .5) * sector + rand(-sector * .27, sector * .27), 58, W - 58);
       const snappedX = Math.round(x);
       return {index:i, x:snappedX, y:terrainAt(snappedX)};
     }).sort((a,b) => a.x - b.x);
-
+    // Reset decorative soil flecks against the new terrain as well.
     groundTexture.length = 0;
     for (let x = 12; x < W; x += 30) {
       const surface = terrainAt(x);
-      groundTexture.push({x, y:surface+rand(22,34), w:Math.round(rand(7,17)), h:4, color:activeBiome.speckA});
-      groundTexture.push({x:x+10, y:surface+rand(46,62), w:Math.round(rand(5,15)), h:4, color:activeBiome.speckB});
+      groundTexture.push({x, y:surface+rand(22,34), w:Math.round(rand(7,17)), h:4, color:'#a9784e'});
+      groundTexture.push({x:x+10, y:surface+rand(46,62), w:Math.round(rand(5,15)), h:4, color:'#70462f'});
     }
   }
 
@@ -426,7 +409,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = settings().description;
-    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.7.0 · ${settings().label} MODE`;
+    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.0 · ${settings().label} MODE`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
@@ -770,95 +753,28 @@
   }
 
   function drawBackground() {
-    const biome = activeBiome || BIOMES[0];
-    rect(0,0,W,H,biome.sky);
-    rect(0,0,W,230,biome.sky);
-    rect(0,185,W,55,biome.haze);
-
-    // Distinct horizon silhouettes make each terrain readable at a glance.
-    if (biome.id === 'alpine') {
-      for (let i = 0; i < 6; i++) {
-        const x = i * 190 - 45;
-        ctx.beginPath();
-        ctx.moveTo(x, 250);
-        ctx.lineTo(x + 88, 112 + (i % 3) * 25);
-        ctx.lineTo(x + 178, 250);
-        ctx.closePath();
-        ctx.fillStyle = i % 2 ? '#8baab8' : '#7698aa';
-        ctx.fill();
-        rect(x+78,145+(i%3)*25,20,18,'#edf2ed');
-      }
-    } else if (biome.id === 'desert') {
-      for (let i = 0; i < 5; i++) {
-        const x = i * 230 - 55;
-        ctx.beginPath();
-        ctx.moveTo(x, 282);
-        ctx.quadraticCurveTo(x+100, 190+(i%2)*22, x+230, 282);
-        ctx.lineTo(x+230, 340);
-        ctx.lineTo(x,340);
-        ctx.closePath();
-        ctx.fillStyle = i % 2 ? '#d6ad70' : '#c99a5d';
-        ctx.fill();
-      }
-      rect(110,72,58,58,'#f8e2a2');
-    } else {
-      for (let i = 0; i < 7; i++) {
-        const x = i * 165 - 40;
-        rect(x,205,95,70,biome.far);
-        rect(x+24,180,75,80,biome.far);
-        rect(x+42,158,42,52,biome.far);
-      }
-    }
-
-    // Background trees use the same species as the trees planted in this biome.
-    const count = biome.id === 'desert' ? 4 : 8;
-    for (let i = 0; i < count; i++) {
-      const x = biome.id === 'desert' ? 95 + i * 245 : i * 132 + 28;
-      drawBiomeTree(x, terrainAt(x)+3, biome.id === 'desert' ? .62 : .66, 1, biome.treeType, i, true);
-    }
-
-    // The soil follows the current terrain profile.
+    rect(0,0,W,H,'#8fc4a1');
+    rect(0,0,W,230,'#8fc4a1'); rect(0,185,W,55,'#a8d8a4');
+    for(let i=0;i<7;i++) { const x=i*165-40; rect(x,205,95,70,'#5b9878'); rect(x+24,180,75,80,'#5b9878'); rect(x+42,158,42,52,'#5b9878'); }
+    for(let i=0;i<8;i++) { const x=i*137-20; rect(x,255,74,105,'#39745c'); rect(x+15,226,52,80,'#39745c'); rect(x+26,208,31,52,'#39745c'); rect(x+9,330,10,38,'#2d5e4a'); }
+    rect(110,72,70,13,'#d8efbd'); rect(128,59,45,13,'#d8efbd'); rect(690,105,78,12,'#d8efbd'); rect(713,91,40,14,'#d8efbd');
+    // The dirt is a polygon following this round's generated elevation profile.
     ctx.beginPath();
     ctx.moveTo(0, terrainAt(0));
     for (let x=0; x<=W; x+=5) ctx.lineTo(x, terrainAt(x));
     ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
-    ctx.fillStyle = biome.ground;
-    ctx.fill();
-
+    ctx.fillStyle='#8b5b3b'; ctx.fill();
+    // Lighter topsoil band, also following the changing elevation.
     ctx.beginPath();
     ctx.moveTo(0, terrainAt(0)+10);
     for (let x=0; x<=W; x+=5) ctx.lineTo(x, terrainAt(x)+10);
     ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
-    ctx.fillStyle = biome.soil;
-    ctx.fill();
-
+    ctx.fillStyle='#6e482f'; ctx.fill();
+    // Surface highlight and grass tufts trace the hill crests and valleys.
     ctx.beginPath();
-    for (let x=0; x<=W; x+=4) {
-      const y=terrainAt(x);
-      if (x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-    }
-    ctx.strokeStyle = biome.surface;
-    ctx.lineWidth = 5;
-    ctx.stroke();
-
-    if (biome.id !== 'desert' && biome.id !== 'alpine') {
-      for(let x=0;x<W;x+=11) {
-        const y=terrainAt(x);
-        rect(x,y-5,3,6,(x%3 ? biome.grass : biome.trees[1]));
-      }
-    } else if (biome.id === 'desert') {
-      for (let x=25; x<W; x+=118) {
-        const y=terrainAt(x);
-        rect(x,y-10,3,10,biome.grass);
-        rect(x-5,y-8,5,3,biome.grass);
-        rect(x+2,y-6,5,3,biome.grass);
-      }
-    } else {
-      for (let x=18; x<W; x+=42) {
-        const y=terrainAt(x);
-        rect(x,y-4,3,5,'#edf2ed');
-      }
-    }
+    for (let x=0; x<=W; x+=4) { const y=terrainAt(x); if (x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+    ctx.strokeStyle='#d1a65b'; ctx.lineWidth=5; ctx.stroke();
+    for(let x=0;x<W;x+=11) { const y=terrainAt(x); rect(x,y-5,3,6,(x%3?'#527f43':'#67964a')); }
     groundTexture.forEach(speck => rect(speck.x, speck.y, speck.w, speck.h, speck.color));
   }
 
@@ -874,75 +790,26 @@
     });
   }
 
-  // Every species uses the same chunky rectangle-based pixel-art language
-  // as the original tree. Only the silhouette changes from biome to biome.
-  function drawBiomeTree(x, groundY, scale, growth, kind, variant) {
+  function drawGrowingTree(h, growth) {
     const g = clamp(growth, 0, 1);
     if (g <= 0) return;
-    const biome = activeBiome || BIOMES[0];
-    const sway = Math.round(Math.sin(frame*.035 + x)*1.5*g*scale);
-    const px = Math.round(x + sway);
-    const base = Math.round(groundY);
-    const trunkH = Math.round(54*scale*g);
-    const trunkW = Math.max(2,Math.round(6*scale*g));
-    const crownH = Math.round(39*scale*g);
-    const crownW = Math.round(38*scale*g);
-    const top = base-trunkH-crownH+Math.round(7*scale*g);
-    const colors = biome.trees;
-    const a = colors[(variant||0)%colors.length];
-    const b = colors[((variant||0)+1)%colors.length];
-    const c = colors[((variant||0)+2)%colors.length];
-    const block = (ox,oy,w,h,color) => {
-      if (w > 0 && h > 0) rect(px+Math.round(ox*scale), base+Math.round(oy*scale), Math.max(1,Math.round(w*scale)), Math.max(1,Math.round(h*scale)), color);
-    };
-
-    if (kind === 'pine') {
-      // Three square-edged tiers make a simple evergreen silhouette.
-      block(-2,-trunkH*.58,4,trunkH*.58,biome.trunk);
-      block(-5,-trunkH*.62-crownH*.05,10,crownH*.22,a);
-      block(-9,-trunkH*.82-crownH*.02,18,crownH*.28,b);
-      block(-13,-trunkH-crownH*.04,26,crownH*.34,c);
-      block(-2,-trunkH*.72,4,3,'#8ebd83');
-      return;
-    }
-
-    if (kind === 'palm') {
-      // Short offset trunk blocks and a handful of chunky fronds.
-      block(-2,-trunkH*.70,4,trunkH*.22,biome.trunk);
-      block(0,-trunkH*.48,4,trunkH*.22,biome.trunk);
-      block(2,-trunkH*.27,4,trunkH*.27,biome.trunk);
-      const crown = base-trunkH;
-      rect(px-3*scale,crown-3*scale,6*scale,5*scale,'#b88a4e');
-      rect(px-17*scale,crown-10*scale,12*scale,4*scale,a);
-      rect(px-13*scale,crown-15*scale,10*scale,4*scale,b);
-      rect(px-7*scale,crown-19*scale,10*scale,4*scale,c);
-      rect(px+4*scale,crown-17*scale,12*scale,4*scale,a);
-      rect(px+9*scale,crown-12*scale,12*scale,4*scale,b);
-      rect(px-2*scale,crown-22*scale,8*scale,4*scale,c);
-      return;
-    }
-
-    if (kind === 'acacia') {
-      // A flat umbrella crown distinguishes the desert tree without extra detail.
-      block(-2,-trunkH*.70,4,trunkH*.70,biome.trunk);
-      block(-10,-trunkH*.70-crownH*.18,20,crownH*.20,a);
-      block(-17,-trunkH*.70-crownH*.02,34,crownH*.22,b);
-      block(-14,-trunkH*.70-crownH*.20,28,crownH*.17,c);
-      block(-7,-trunkH*.70-crownH*.27,14,crownH*.10,a);
-      return;
-    }
-
-    // Original-style broadleaf tree: straight trunk and three square leaf tiers.
-    block(-3,-trunkH,6,trunkH,biome.trunk);
-    block(-1,-trunkH+8*scale,2,Math.max(1,trunkH-10*scale),'#a97945');
-    rect(px-Math.round(crownW*.30),top+Math.round(crownH*.48),Math.round(crownW*.60),Math.round(crownH*.48),a);
-    rect(px-Math.round(crownW*.48),top+Math.round(crownH*.24),Math.round(crownW*.96),Math.round(crownH*.48),b);
-    rect(px-Math.round(crownW*.27),top,Math.round(crownW*.54),Math.round(crownH*.40),c);
-    rect(px-Math.round(crownW*.13),top+Math.round(crownH*.13),Math.round(crownW*.16),Math.round(crownH*.12),biome.highlight);
-  }
-
-  function drawGrowingTree(h, growth) {
-    drawBiomeTree(h.x,h.y,.9,growth,activeBiome.treeType,h.targetIndex || 0);
+    const eased = g*g*(3-2*g);
+    const sway = Math.sin(frame*.035 + h.x)*1.5*eased;
+    const groundY = h.y;
+    const trunkH = 54*eased;
+    const canopyH = 39*eased;
+    const canopyW = 38*eased;
+    const x = h.x + sway;
+    // Trunk rises first; three blocky leaf tiers unfold behind it.
+    rect(x-3, groundY-trunkH, 6, trunkH, '#79502f');
+    rect(x-1, groundY-trunkH+8, 2, Math.max(0,trunkH-10), '#a97945');
+    const crownY = groundY-trunkH-canopyH+7*eased;
+    const species = h.targetIndex % 3;
+    const greens = species===0 ? ['#2d7f43','#39964c','#65b75c'] : species===1 ? ['#277544','#368f48','#75bf62'] : ['#347c3b','#4c9b45','#8bc95f'];
+    rect(x-canopyW*.30,crownY+canopyH*.48,canopyW*.60,canopyH*.48,greens[0]);
+    rect(x-canopyW*.48,crownY+canopyH*.24,canopyW*.96,canopyH*.48,greens[1]);
+    rect(x-canopyW*.27,crownY,canopyW*.54,canopyH*.40,greens[2]);
+    rect(x-canopyW*.13,crownY+canopyH*.13,canopyW*.16,canopyH*.12,'#b0dc78');
   }
 
   function drawHole(h) {
@@ -955,7 +822,8 @@
         const growth = state === 'won' ? 1 : clamp((victoryTimer - index*10)/95, 0, 1);
         drawGrowingTree(h, growth);
       } else {
-        drawBiomeTree(h.x,y,.36,.72,activeBiome.treeType,h.targetIndex || 0);
+        const sway=Math.sin(frame*.09+h.x)*2;
+        rect(h.x-3,y-17,6,15,'#427441'); rect(h.x-12+sway,y-23,12,7,'#2d8b49'); rect(h.x+1+sway,y-29,12,8,'#329b4e'); rect(h.x-8+sway,y-33,10,7,'#5eae54'); rect(h.x-10,y-2,20,3,'#567b36');
       }
     }
   }
@@ -990,7 +858,6 @@
       ? (phoneLayout ? 'LEVEL 2 · SEEDBOMBS' : 'LEVEL 2: SEEDBOMB TRIAL')
       : (phoneLayout ? (phase==='soil'?'LEVEL 1 · SOIL':'LEVEL 1 · SAPLINGS') : (phase==='soil'?'LEVEL 1: HIT THE SITES':'LEVEL 1: PLANT THE HOLES'));
     text(phaseText,28,39,12,'#e2f4b8','left');
-    text('TERRAIN: ' + (activeBiome ? activeBiome.label : 'FIELD'),W/2,39,10,'#284c38');
     rect(650,14,296,42,'#214332'); rect(654,18,288,34,'#31583c');
     const seconds = Math.ceil(timeLeft/60);
     const dir = wind < -.08 ? '<' : wind > .08 ? '>' : '-';
