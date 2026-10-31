@@ -882,11 +882,42 @@
   function drawDrone() {
     const x=Math.round(drone.x), y=Math.round(drone.y), wobble=Math.sin(drone.prop)*2;
     ctx.globalAlpha=.18; rect(x-22,terrainAt(x)-13,44,5,'#14271c'); ctx.globalAlpha=1;
+
+    if (level === 2) {
+      // Level 2 uses a dedicated seed-spreader drone with a chunky hopper silhouette.
+      rect(x-39,y-8+wobble,78,5,'#354c37');
+      rect(x-43,y-13+wobble,25,4,'#d7bf78');
+      rect(x+18,y-13-wobble,25,4,'#d7bf78');
+      rect(x-45,y-16+wobble,25,3,'#536b43');
+      rect(x+20,y-16-wobble,25,3,'#536b43');
+
+      // Reinforced olive frame and warm yellow seed hopper.
+      rect(x-16,y-14,32,7,'#405d3c');
+      rect(x-13,y-21,26,9,'#9eaa65');
+      rect(x-10,y-25,20,5,'#d9c77a');
+      rect(x-7,y-22,14,3,'#eadb9a');
+      rect(x-12,y-7,24,5,'#526f43');
+      rect(x-19,y-3,38,13,'#d4c58a');
+      rect(x-14,y,28,8,'#879b5e');
+      rect(x-8,y+2,16,4,'#e7d48a');
+
+      // Visible seed container and a short release chute underneath.
+      rect(x-5,y-27,10,4,'#6d4e32');
+      rect(x-3,y-31,6,4,'#b99657');
+      rect(x-4,y+10,8,5,'#596f45');
+      rect(x-3,y+15,6,5,'#a98b50');
+      rect(x-2,y+20,4,3,'#d4c58a');
+      rect(x-7,y-1,4,3,'#f2e3ad');
+      rect(x+3,y-1,4,3,'#f2e3ad');
+      return;
+    }
+
+    // Original Level 1 planting drone stays unchanged.
     rect(x-32,y-5+wobble,64,4,'#263f3a'); rect(x-35,y-10+wobble,19,3,'#263f3a'); rect(x+16,y-10-wobble,19,3,'#263f3a');
     rect(x-37,y-13+wobble,22,3,'#e3e6bc'); rect(x+15,y-13-wobble,22,3,'#e3e6bc');
     rect(x-13,y-11,26,8,'#2d5144'); rect(x-17,y-5,34,13,'#d5d8ae'); rect(x-12,y-2,24,8,'#809e73');
     rect(x-6,y+8,12,6,'#3b5743'); rect(x-9,y+14,18,3,'#3b5743');
-    rect(x-3,y+1,6,3,phase==='soil'?'#d7b84b':phase==='seedbomb'?'#c2d879':'#8adf75');
+    rect(x-3,y+1,6,3,phase==='soil'?'#d7b84b':'#8adf75');
   }
   function drawPod(p) {
     if (p.kind === 'seedbomb') {
