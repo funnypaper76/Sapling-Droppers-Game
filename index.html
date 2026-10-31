@@ -394,7 +394,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bio Blazers</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.6 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.7 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <span class="mode-label">WIND PROFILE</span>
@@ -446,55 +446,71 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log">×</button>
       </div>
-      <div class="update-log-current">CURRENT BUILD · 1.6.6</div>
+      <div class="update-log-current">CURRENT BUILD · 1.6.7</div>
       <div class="update-log-list">
+        <article class="update-entry">
+          <div class="update-entry-title">UPDATE LOG ORDER</div>
+          <p>Reorganized the development history so the newest changes appear first and the original game appears last.</p>
+        </article>
         <article class="update-entry">
           <div class="update-entry-title">SKILL SCORING & PERSONAL BEST</div>
           <p>Added different rewards for soil preparation, precise sapling planting, and seedbomb hits. Challenge gives 1.5× points and Gale gives 2×. Accurate landings, time remaining, and clean stages earn bonuses; misses subtract points. A personal high score is saved in this browser.</p>
         </article>
         <article class="update-entry">
-          <div class="update-entry-title">THE ORIGINAL GAME</div>
-          <p>Started as a retro 2D drone reforestation game. Fly across the field, prepare eight ground sites with soil pods, then plant saplings and grow a new forest.</p>
+          <div class="update-entry-title">UPDATE LOG</div>
+          <p>Added a scrollable development history to the cover, with its own button, close control, and Escape-key support.</p>
         </article>
         <article class="update-entry">
-          <div class="update-entry-title">WIND, DIFFICULTY & TERRAIN</div>
-          <p>Added Normal, Challenge and Gale wind profiles, changing gusts for individual falling objects, a mission timer, three-miss limit, and randomized hills and planting-marker positions.</p>
+          <div class="update-entry-title">CHATGPT CREDIT</div>
+          <p>Added a tiny bottom-right cover credit: the game was made by ChatGPT with prompts from a human, alongside a deliberately clunky little logo.</p>
         </article>
         <article class="update-entry">
-          <div class="update-entry-title">TWO-LEVEL CAMPAIGN</div>
-          <p>Added the Level 1 forest-growth celebration and a Level 2 seedbomb trial. The campaign ends with a one-tree seedbomb cutscene and a field report explaining the project's illustrative survival-rate comparison.</p>
-        </article>
-        <article class="update-entry">
-          <div class="update-entry-title">MOBILE & DOWNLOAD SUPPORT</div>
-          <p>Added touch controls for phones and tablets, responsive layouts, keyboard controls, and a button to download a standalone copy of the game.</p>
-        </article>
-        <article class="update-entry">
-          <div class="update-entry-title">GLOBAL PLAY COUNTER</div>
-          <p>Connected the game to a shared counter using a Vercel API route and Upstash storage, so visitors can see the global number of campaign starts.</p>
-        </article>
-        <article class="update-entry">
-          <div class="update-entry-title">BIO BLAZERS BRANDING</div>
-          <p>Changed the creator credit from By the Bark Knights to By the Bio Blazers.</p>
-        </article>
-        <article class="update-entry">
-          <div class="update-entry-title">ROCK HAZARDS</div>
-          <p>Added dangerous rocks to each stage. Landing on one counts as a miss. The first version had too many, so the number was reduced from eight to four with more space between them.</p>
-        </article>
-        <article class="update-entry">
-          <div class="update-entry-title">SEEDBOMB AIR PUFF</div>
-          <p>Added an animated air puff when a seedbomb is released, then made its particles larger and chunkier to match the game's pixel-art look.</p>
+          <div class="update-entry-title">TITLE COVER</div>
+          <p>Added the Bio Blazers cover screen, pixel-art drone and forest scene, and a large Play button before the campaign begins.</p>
         </article>
         <article class="update-entry">
           <div class="update-entry-title">LEVEL 2 DRONE</div>
           <p>Designed a separate olive-and-gold seed-spreader drone for the seedbomb stage, while keeping the original planting drone for Level 1.</p>
         </article>
         <article class="update-entry">
-          <div class="update-entry-title">TITLE COVER</div>
-          <p>Added the Bio Blazers cover screen, pixel-art drone and forest scene, and a large Play button. Added a tiny ChatGPT credit noting that the game was made with prompts from a human.</p>
+          <div class="update-entry-title">CHUNKIER SEEDBOMB AIR PUFF</div>
+          <p>Reduced the puff to fewer, larger square particles for a bolder pixel-cloud effect.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">ROCK HAZARDS</div>
+          <p>Added dangerous rocks to each stage. Landing on one counts as a miss. Reduced the rock count from eight to four and increased spacing so the rocks feel less crowded.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">SEEDBOMB AIR PUFF</div>
+          <p>Added an animated pale air puff whenever the drone releases a seedbomb.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">BIO BLAZERS BRANDING</div>
+          <p>Changed the creator credit from By the Bark Knights to By the Bio Blazers.</p>
         </article>
         <article class="update-entry update-entry-note">
           <div class="update-entry-title">BIOME EXPERIMENT · ROLLED BACK</div>
           <p>Tested tropical, desert and snowy environments with different trees. The alternate tree styles did not match the original simple look, so the experiment was reverted and the classic forest was restored.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">GLOBAL PLAY COUNTER</div>
+          <p>Connected the game to a shared counter using a Vercel API route and Upstash storage, so visitors can see the global number of campaign starts.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">MOBILE & DOWNLOAD SUPPORT</div>
+          <p>Added touch controls for phones and tablets, responsive layouts, keyboard controls, and a button to download a standalone copy of the game.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">TWO-LEVEL CAMPAIGN</div>
+          <p>Added the Level 1 forest-growth celebration and a Level 2 seedbomb trial. The campaign ends with a one-tree seedbomb cutscene and a field report explaining the project's illustrative survival-rate comparison.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">WIND, DIFFICULTY & TERRAIN</div>
+          <p>Added Normal, Challenge and Gale wind profiles, changing gusts for individual falling objects, a mission timer, three-miss limit, and randomized hills and planting-marker positions.</p>
+        </article>
+        <article class="update-entry">
+          <div class="update-entry-title">THE ORIGINAL GAME</div>
+          <p>Started as a retro 2D drone reforestation game. Fly across the field, prepare eight ground sites with soil pods, then plant saplings and grow a new forest.</p>
         </article>
       </div>
       <div class="update-log-footer">MADE BY THE BIO BLAZERS · THANKS FOR PLAYING</div>
@@ -831,7 +847,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = settings().description;
-    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.6 · ${settings().label} MODE`;
+    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.7 · ${settings().label} MODE`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
