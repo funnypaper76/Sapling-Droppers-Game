@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#172a24">
 <meta name="description" content="A touch-friendly retro drone reforestation game. Drop soil pods, plant saplings, and battle unpredictable wind.">
-<title>Sapling Droppers — By the Bio Blazers</title>
+<title>Sapling Droppers — by the bio blazers</title>
 <style>
   :root { color-scheme: dark; --ink:#eff3cc; --moss:#a8d86e; --panel:#1b3028; --line:#49624a; }
   * { box-sizing:border-box; }
@@ -394,8 +394,8 @@
 <body class="cover-active">
 <main class="cabinet">
   <header class="topline">
-    <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="BYLINE">By the Bio Blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.4 · TWO-LEVEL CAMPAIGN</div>
+    <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.5 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option></select>
@@ -448,8 +448,8 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.4</div>
-      <div class="update-log-list">
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.5</div>
+      <div class="update-log-list">\n        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_23">TEAM NAME BRANDING</div><p data-i18n-key="LOG_DESC_23">Standardised the team name across the website as “by the bio blazers”.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_22">THREE ENGLISH SPEECH STYLES</div><p data-i18n-key="LOG_DESC_22">Added archaic, over-the-top British, and pirate-style English to the language selector.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_21">UPDATE LOG TRANSLATION INDEX FIX</div><p data-i18n-key="LOG_DESC_21">Each history item now uses its own translation key so titles and descriptions stay matched in every language.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_20">COMPLETE LANGUAGE COVERAGE</div><p data-i18n-key="LOG_DESC_20">Translated the remaining game text across all ten supported languages.</p></article>
@@ -610,15 +610,18 @@
   function stylizeMarkup(markup,style){
     return markup.replace(/>([^<>]*)</g,(match,plain)=>">"+stylizeEnglish(plain,style)+"<");
   }
+
+  Object.assign(LANGUAGE_TEXT,{"LOG_TITLE_23":["MARCA DEL EQUIPO","NOM DE L’ÉQUIPE","TEAMNAME"],"LOG_DESC_23":["El nombre del equipo ahora aparece como «by the bio blazers» en el sitio web.","Le nom de l’équipe apparaît désormais comme « by the bio blazers » sur le site.","Der Teamname erscheint auf der Website jetzt als „by the bio blazers“." ]});
+  Object.keys(ADDITIONAL_LANGUAGE_TEXT).forEach(code=>Object.assign(ADDITIONAL_LANGUAGE_TEXT[code],{"pt":{"LOG_TITLE_23":"NOME DA EQUIPE","LOG_DESC_23":"O nome da equipe agora aparece como “by the bio blazers” no site."},"it":{"LOG_TITLE_23":"NOME DELLA SQUADRA","LOG_DESC_23":"Il nome della squadra ora appare come “by the bio blazers” sul sito."},"ja":{"LOG_TITLE_23":"チーム名の表記","LOG_DESC_23":"ウェブサイト上のチーム名を「by the bio blazers」に統一しました。"},"zh":{"LOG_TITLE_23":"统一团队名称","LOG_DESC_23":"网站上的团队名称现已统一显示为“by the bio blazers”。"},"ko":{"LOG_TITLE_23":"팀 이름 표기 통일","LOG_DESC_23":"웹사이트의 팀 이름을 이제 “by the bio blazers”로 표시합니다."},"nl":{"LOG_TITLE_23":"TEAMNAAM AANGEPAST","LOG_DESC_23":"De teamnaam wordt op de website nu weergegeven als “by the bio blazers”."}}));
   const LANG_NAMES={en:"English",es:"Español",fr:"Français",de:"Deutsch",pt:"Português",it:"Italiano",ja:"日本語",zh:"中文（简体）",ko:"한국어",nl:"Nederlands",old:"Old English",british:"Extremely British",pirate:"Pirate Speak"};
   const LANG_KEY="sapling-droppers-language-v1";
   function detectLanguage(){try{const saved=localStorage.getItem(LANG_KEY);if(saved&&LANG_NAMES[saved])return saved}catch(_){}const code=(navigator.language||"en").slice(0,2).toLowerCase();return LANG_NAMES[code]?code:"en"}
   let currentLanguage=detectLanguage();
-  function tr(key,values={}){const added=ADDITIONAL_LANGUAGE_TEXT[currentLanguage]&&ADDITIONAL_LANGUAGE_TEXT[currentLanguage][key];let row=LANGUAGE_TEXT[key];const oldIndex=["es","fr","de"].indexOf(currentLanguage);let out=added||(currentLanguage==="en"||oldIndex<0||!row?key:row[oldIndex]);out=out.replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(values,k)?String(values[k]):m);return stylizeEnglish(out,currentLanguage)}
+  function tr(key,values={}){if(key==="TEAM_NAME")return "by the bio blazers";const added=ADDITIONAL_LANGUAGE_TEXT[currentLanguage]&&ADDITIONAL_LANGUAGE_TEXT[currentLanguage][key];let row=LANGUAGE_TEXT[key];const oldIndex=["es","fr","de"].indexOf(currentLanguage);let out=added||(currentLanguage==="en"||oldIndex<0||!row?key:row[oldIndex]);out=out.replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(values,k)?String(values[k]):m);out=stylizeEnglish(out,currentLanguage);return out.replace(/BIO BLAZERS/gi,"bio blazers")}
   function applyLanguage(){
     document.documentElement.lang=["old","british","pirate"].includes(currentLanguage)?"en":currentLanguage;
     const picker=document.getElementById("languageSelect");if(picker)picker.value=currentLanguage;
-    const map={tagline:"PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN",windProfileLabel:"WIND PROFILE",globalPlaysLabel:"GLOBAL PLAYS",personalBestLabel:"PERSONAL BEST",coverKicker:"BY THE BIO BLAZERS",coverTagline:"PLANT A FOREST. BEAT THE WIND.",playLabel:"PLAY",updateLogLabel:"UPDATE LOG",coverFootnote:"A PIXEL REFORESTATION ARCADE GAME",currentBuildLabel:"CURRENT BUILD",touchCaption:"TOUCH CONTROLS",downloadLabel:"DOWNLOAD TO FILES",restartLabel:"RESTART MISSION",logKicker:"BIO BLAZERS DEVELOPMENT NOTES",logFooter:"MADE BY THE BIO BLAZERS · THANKS FOR PLAYING"};
+    const map={tagline:"PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN",windProfileLabel:"WIND PROFILE",globalPlaysLabel:"GLOBAL PLAYS",personalBestLabel:"PERSONAL BEST",coverKicker:"TEAM_NAME",coverTagline:"PLANT A FOREST. BEAT THE WIND.",playLabel:"PLAY",updateLogLabel:"UPDATE LOG",coverFootnote:"A PIXEL REFORESTATION ARCADE GAME",currentBuildLabel:"CURRENT BUILD",touchCaption:"TOUCH CONTROLS",downloadLabel:"DOWNLOAD TO FILES",restartLabel:"RESTART MISSION",logKicker:"BIO BLAZERS DEVELOPMENT NOTES",logFooter:"MADE BY THE BIO BLAZERS · THANKS FOR PLAYING"};
     Object.entries(map).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=tr(key)});
     document.querySelectorAll("[data-i18n-key]").forEach(el=>{el.textContent=tr(el.dataset.i18nKey)});
     document.querySelectorAll("[data-i18n-aria]").forEach(el=>{el.setAttribute("aria-label",tr(el.dataset.i18nAria))});
@@ -927,7 +930,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = tr(settings().description);
-    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.4 · ${tr(settings().label)} ${tr('MODE')}`;
+    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.5 · ${tr(settings().label)} ${tr('MODE')}`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
