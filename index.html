@@ -17,6 +17,7 @@
   .tag { margin-top:8px; color:#b6c9a3; font-size:11px; letter-spacing:2px; }
   .version { color:#9eb58e; font-size:11px; text-align:right; }
   .screen { position:relative; overflow:hidden; border:4px solid #66865a; outline:4px solid #0b1512; background:#8fc4a1; box-shadow:0 12px 0 #0b1512,0 20px 50px #0008; }
+  .language-label{color:#a8c29b;font-size:10px;letter-spacing:1.5px}.language-select{min-height:34px;padding:6px 26px 6px 9px;color:#eaf5d5;background:#283f34;border:1px solid #6e9572;font:inherit;font-size:11px}
   .mode-picker { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 0 13px; padding:10px 12px; border:1px solid #49624a; background:#1b3028; box-shadow:3px 3px #08120d; }
   .mode-label { color:#a8c29b; font-size:10px; letter-spacing:1.5px; margin-right:4px; }
   .mode-button { padding:8px 12px; font-size:11px; border-width:1px; border-bottom-width:3px; background:#283f34; border-color:#58744e; }
@@ -52,7 +53,7 @@
     body { padding:12px; align-items:flex-start; }
     .topline { align-items:start; }
     .mode-picker { gap:6px; }
-    .mode-label { width:100%; }
+    .mode-label,.language-label{width:100%}
     .mode-button { flex:1; padding:9px 6px; }
     .mode-description { width:100%; margin:2px 0 0; line-height:1.5; }
     .version { max-width:105px; line-height:1.5; }
@@ -77,7 +78,7 @@
     .tag { font-size:9px; line-height:1.4; letter-spacing:1px; margin-top:6px; }
     .version { display:none; }
     .mode-picker { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; margin-bottom:10px; padding:9px; }
-    .mode-label, .mode-description { grid-column:1/-1; width:auto; margin:0; }
+    .mode-label, .mode-description, .language-label { grid-column:1/-1; width:auto; margin:0; }
     .mode-button { min-width:0; min-height:44px; padding:10px 3px; font-size:10px; letter-spacing:.5px; }
     .mode-description { font-size:10px; text-align:center; }
     .screen { border-width:3px; outline-width:2px; box-shadow:0 6px 0 #0b1512,0 10px 24px #0007; }
@@ -393,17 +394,18 @@
 <body class="cover-active">
 <main class="cabinet">
   <header class="topline">
-    <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bio Blazers</span></div><div class="tag">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.7 · TWO-LEVEL CAMPAIGN</div>
+    <div><div class="brand">SAPLING DROPPERS<span class="byline">By the Bio Blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.6.8 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
-    <span class="mode-label">WIND PROFILE</span>
+    <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option></select>
+    <span class="mode-label" id="windProfileLabel">WIND PROFILE</span>
     <button class="mode-button" type="button" data-mode="normal" aria-pressed="true">NORMAL</button>
     <button class="mode-button" type="button" data-mode="challenge" aria-pressed="false">CHALLENGE</button>
     <button class="mode-button" type="button" data-mode="gale" aria-pressed="false">GALE</button>
     <span id="modeDescription" class="mode-description">Gentle breeze · 105 seconds · forgiving aim</span>
-    <span class="global-plays" aria-live="polite">GLOBAL PLAYS <strong id="globalPlays">…</strong></span>
-    <span class="personal-best-display">PERSONAL BEST <strong id="personalBest">0</strong></span>
+    <span class="global-plays" aria-live="polite"><span id="globalPlaysLabel">GLOBAL PLAYS</span> <strong id="globalPlays">…</strong></span>
+    <span class="personal-best-display"><span id="personalBestLabel">PERSONAL BEST</span> <strong id="personalBest">0</strong></span>
   </nav>
   <section id="gameCover" class="game-cover" aria-label="Sapling Droppers game cover">
     <div class="cover-scene" aria-hidden="true">
@@ -429,25 +431,26 @@
       </div>
     </div>
     <div class="cover-copy">
-      <div class="cover-kicker">BY THE BIO BLAZERS</div>
+      <div class="cover-kicker" id="coverKicker">BY THE BIO BLAZERS</div>
       <h1>SAPLING DROPPERS</h1>
-      <p>PLANT A FOREST. BEAT THE WIND.</p>
-      <button id="playGame" class="play-button" type="button">▶ &nbsp; PLAY</button>
-      <button id="openUpdateLog" class="update-log-button" type="button">▤ &nbsp; UPDATE LOG</button>
-      <div class="cover-footnote">A PIXEL REFORESTATION ARCADE GAME</div>
+      <p id="coverTagline">PLANT A FOREST. BEAT THE WIND.</p>
+      <button id="playGame" class="play-button" type="button"><span aria-hidden="true">▶ &nbsp;</span><span id="playLabel">PLAY</span></button>
+      <button id="openUpdateLog" class="update-log-button" type="button"><span aria-hidden="true">▤ &nbsp;</span><span id="updateLogLabel">UPDATE LOG</span></button>
+      <div class="cover-footnote" id="coverFootnote">A PIXEL REFORESTATION ARCADE GAME</div>
     </div>
   </section>
   <section id="updateLog" class="update-log-backdrop" role="dialog" aria-modal="true" aria-labelledby="updateLogTitle" hidden>
     <div class="update-log-panel">
       <div class="update-log-heading">
         <div>
-          <div class="update-log-kicker">BIO BLAZERS DEVELOPMENT NOTES</div>
+          <div class="update-log-kicker" id="logKicker">BIO BLAZERS DEVELOPMENT NOTES</div>
           <h2 id="updateLogTitle">SAPLING DROPPERS · UPDATE LOG</h2>
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log">×</button>
       </div>
-      <div class="update-log-current">CURRENT BUILD · 1.6.7</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.6.8</div>
       <div class="update-log-list">
+        <article class="update-entry"><div class="update-entry-title">MULTILINGUAL SUPPORT</div><p>Added English, Spanish, French and German options. The selected language is saved on this device and updates the game controls, HUD, mission messages and field report.</p></article>
         <article class="update-entry">
           <div class="update-entry-title">UPDATE LOG ORDER</div>
           <p>Reorganized the development history so the newest changes appear first and the original game appears last.</p>
@@ -513,7 +516,7 @@
           <p>Started as a retro 2D drone reforestation game. Fly across the field, prepare eight ground sites with soil pods, then plant saplings and grow a new forest.</p>
         </article>
       </div>
-      <div class="update-log-footer">MADE BY THE BIO BLAZERS · THANKS FOR PLAYING</div>
+      <div class="update-log-footer" id="logFooter">MADE BY THE BIO BLAZERS · THANKS FOR PLAYING</div>
     </div>
   </section>
   <section class="screen" aria-label="Sapling Droppers browser game">
@@ -526,10 +529,10 @@
   </section>
   <div class="controls">
     <div class="help desktop-help"><kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> MOVE &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>W</kbd> <kbd>S</kbd> ALTITUDE<br><kbd>SPACE</kbd> ACTION &nbsp; <kbd>ENTER</kbd> START / RESTART<br>Select a wind profile above. Level 2 uses the same action key for seedbombs. 3 misses across the campaign = mission failed.</div><div class="help mobile-help">Use the direction pad to fly. Tap <b>DROP / PLANT</b> to release a pod or sapling. Three misses ends the mission.</div>
-    <div class="actions"><button id="downloadGame" class="button-muted" type="button">↓ Download to Files</button><button id="restart" type="button">↻ Restart mission</button></div>
+    <div class="actions"><button id="downloadGame" class="button-muted" type="button">↓ <span id="downloadLabel">Download to Files</span></button><button id="restart" type="button">↻ <span id="restartLabel">Restart mission</span></button></div>
   </div>
   <section class="mobile-control-wrap" aria-label="Touch controls">
-    <div class="touch-caption">TOUCH CONTROLS</div>
+    <div class="touch-caption" id="touchCaption">TOUCH CONTROLS</div>
     <div class="mobile-controls" aria-label="Touch game controls">
       <button type="button" data-control="up" aria-label="Fly drone up">▲</button>
       <button type="button" data-control="left" aria-label="Fly drone left">◀</button>
@@ -550,6 +553,25 @@
   const TOTAL = 8, MAX_MISSES = 3;
   // Each round receives a fresh, gently rolling terrain profile.
   let terrainPoints = [], TARGETS = [];
+
+  const LANGUAGE_TEXT={"LANGUAGE":["IDIOMA","LANGUE","SPRACHE"],"WIND PROFILE":["PERFIL DE VIENTO","PROFIL DE VENT","WINDPROFIL"],"NORMAL":["NORMAL","NORMAL","NORMAL"],"CHALLENGE":["DESAFÍO","DÉFI","HERAUSFORDERUNG"],"GALE":["TEMPORAL","TEMPÊTE","STURM"],"PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN":["UNIDAD DE REFORESTACIÓN PIXEL · CONTROL TÁCTIL · CAMPAÑA DE DOS NIVELES","UNITÉ DE REBOISEMENT PIXEL · TACTILE · CAMPAGNE EN DEUX NIVEAUX","PIXEL-AUFFORSTUNG · TOUCH-STEUERUNG · ZWEI LEVELS"],"GLOBAL PLAYS":["PARTIDAS GLOBALES","PARTIES MONDIALES","SPIELE GESAMT"],"PERSONAL BEST":["RÉCORD PERSONAL","RECORD PERSONNEL","PERSÖNLICHER REKORD"],"BY THE BIO BLAZERS":["POR BIO BLAZERS","PAR BIO BLAZERS","VON BIO BLAZERS"],"PLANT A FOREST. BEAT THE WIND.":["PLANTA UN BOSQUE. VENCE AL VIENTO.","PLANTEZ UNE FORÊT. BRAVEZ LE VENT.","PFLANZE EINEN WALD. BESIEGE DEN WIND."],"PLAY":["JUGAR","JOUER","SPIELEN"],"UPDATE LOG":["REGISTRO DE CAMBIOS","JOURNAL DES MISES À JOUR","ÄNDERUNGSLOG"],"A PIXEL REFORESTATION ARCADE GAME":["UN JUEGO ARCADE PIXEL DE REFORESTACIÓN","UN JEU D'ARCADE PIXEL DE REBOISEMENT","PIXEL-ARCADE-AUFFORSTUNGSSPIEL"],"CURRENT BUILD":["VERSIÓN ACTUAL","VERSION ACTUELLE","AKTUELLE VERSION"],"BIO BLAZERS DEVELOPMENT NOTES":["NOTAS DE DESARROLLO BIO BLAZERS","NOTES DE DÉVELOPPEMENT BIO BLAZERS","BIO-BLAZERS-ENTWICKLUNGSNOTIZEN"],"TOUCH CONTROLS":["CONTROLES TÁCTILES","COMMANDES TACTILES","TOUCH-STEUERUNG"],"DOWNLOAD TO FILES":["DESCARGAR ARCHIVO","TÉLÉCHARGER LE FICHIER","DATEI HERUNTERLADEN"],"RESTART MISSION":["REINICIAR MISIÓN","RECOMMENCER LA MISSION","MISSION NEU STARTEN"],"MADE BY THE BIO BLAZERS · THANKS FOR PLAYING":["HECHO POR BIO BLAZERS · GRACIAS POR JUGAR","CRÉÉ PAR BIO BLAZERS · MERCI D'AVOIR JOUÉ","VON BIO BLAZERS · DANKE FÜRS SPIELEN"],"GROUND SITES":["ZONAS PREPARADAS","SITES PRÉPARÉS","VORBEREITETE FLÄCHEN"],"SAPLINGS":["PLÁNTULAS","JEUNES POUSSES","JUNGPFLANZEN"],"PODS":["CÁPSULAS","CAPSULES","KAPSELN"],"DROPS":["LANZAMIENTOS","LANCERS","ABWÜRFE"],"MISS":["FALLOS","ÉCHECS","FEHLER"],"TARGETS HIT":["OBJETIVOS ALCANZADOS","CIBLES ATTEINTES","TREFFER"],"SEEDBOMBS":["SEMILLAS","GRAINES","SAMENKAPSELN"],"SITES REACHED":["ZONAS ALCANZADAS","SITES ATTEINTS","FLÄCHEN ERREICHT"],"RELEASED":["LANZADAS","LANCÉES","ABGEWORFEN"],"MISSION READY":["MISIÓN LISTA","MISSION PRÊTE","MISSION BEREIT"],"LEVEL 1 · FOREST GROWING…":["NIVEL 1 · EL BOSQUE CRECE…","NIVEAU 1 · LA FORÊT POUSSE…","LEVEL 1 · DER WALD WÄCHST…"],"LEVEL 2 · ONE TREE SURVIVED…":["NIVEL 2 · SOBREVIVIÓ UN ÁRBOL…","NIVEAU 2 · UN ARBRE A SURVÉCU…","LEVEL 2 · EIN BAUM HAT ÜBERLEBT…"],"FIELD REPORT":["INFORME DE CAMPO","RAPPORT DE TERRAIN","FELDBERICHT"],"CAMPAIGN COMPLETE":["CAMPAÑA COMPLETADA","CAMPAGNE TERMINÉE","KAMPAGNE ABGESCHLOSSEN"],"MISSION FAILED":["MISIÓN FALLIDA","MISSION ÉCHOUÉE","MISSION GESCHEITERT"],"LEVEL 2 · SEEDBOMB TRIAL":["NIVEL 2 · PRUEBA DE SEMILLAS","NIVEAU 2 · ESSAI DE GRAINES","LEVEL 2 · SAMENKAPSEL-TEST"],"LEVEL 1 · PREPARE SOIL":["NIVEL 1 · PREPARA EL SUELO","NIVEAU 1 · PRÉPARER LE SOL","LEVEL 1 · BODEN VORBEREITEN"],"LEVEL 1 · PLANT SAPLINGS":["NIVEL 1 · PLANTA PLÁNTULAS","NIVEAU 1 · PLANTER LES POUSSES","LEVEL 1 · JUNGPFLANZEN SETZEN"],"SCORE":["PUNTOS","SCORE","PUNKTE"],"SEEDBOMB":["SEMILLA","GRAINE","SAMENKAPSEL"],"DROP / PLANT":["SOLTAR / PLANTAR","LÂCHER / PLANTER","ABWERFEN / PFLANZEN"],"Use the direction pad to fly. Tap DROP / PLANT to release a pod or sapling. Three misses ends the mission.":["Usa el control direccional para volar. Pulsa SOLTAR / PLANTAR. Tres fallos terminan la misión.","Utilisez les flèches pour piloter. Appuyez sur LÂCHER / PLANTER. Trois échecs terminent la mission.","Steuere die Drohne mit dem Steuerkreuz. Drei Fehler beenden die Mission."],"Aim for the marked sites and tap SEEDBOMB to release a seed capsule. Three misses ends the campaign.":["Apunta a las zonas marcadas y pulsa SEMILLA. Tres fallos terminan la campaña.","Visez les sites marqués et appuyez sur GRAINE. Trois échecs terminent la campagne.","Ziele auf die markierten Flächen und tippe SAMENKAPSEL. Drei Fehler beenden die Kampagne."],"Gentle breeze · 105 seconds · forgiving aim":["Brisa suave · 105 segundos · puntería tolerante","Brise légère · 105 secondes · visée facile","Leichte Brise · 105 Sekunden · großzügige Trefferzone"],"Shifting crosswinds · 75 seconds · tight aim":["Vientos cruzados · 75 segundos · puntería precisa","Vents changeants · 75 secondes · visée précise","Wechselnde Seitenwinde · 75 Sekunden · präzises Zielen"],"Violent reversals · 60 seconds · narrow landing zones":["Cambios bruscos · 60 segundos · zonas estrechas","Rafales violentes · 60 secondes · zones étroites","Starke Windwechsel · 60 Sekunden · schmale Landezonen"],"LEVEL 1 · SOIL PODS, THEN SAPLINGS":["NIVEL 1 · CÁPSULAS DE TIERRA Y PLÁNTULAS","NIVEAU 1 · CAPSULES DE TERRE, PUIS POUSSES","LEVEL 1 · BODENKAPSELN, DANN JUNGPFLANZEN"],"LEVEL 2 · RELEASE SEEDBOMBS ON THE NEW MARKERS":["NIVEL 2 · LANZA SEMILLAS A LOS NUEVOS OBJETIVOS","NIVEAU 2 · LANCEZ LES GRAINES SUR LES REPÈRES","LEVEL 2 · SAMENKAPSELN AUF NEUE MARKIERUNGEN ABWERFEN"],"NO SOIL PODS LEFT":["NO QUEDAN CÁPSULAS DE TIERRA","PLUS DE CAPSULES DE TERRE","KEINE BODENKAPSELN MEHR"],"SOIL POD {n}/{max} RELEASED":["CÁPSULA {n}/{max} LANZADA","CAPSULE {n}/{max} LANCÉE","KAPSEL {n}/{max} ABGEWORFEN"],"NO SAPLINGS LEFT":["NO QUEDAN PLÁNTULAS","PLUS DE POUSSES","KEINE JUNGPFLANZEN MEHR"],"SAPLING DROP {n}/{max}":["PLÁNTULA {n}/{max} LANZADA","POUSSE {n}/{max} LANCÉE","JUNGPFLANZE {n}/{max} ABGEWORFEN"],"NO SEEDBOMBS LEFT":["NO QUEDAN SEMILLAS","PLUS DE GRAINES","KEINE SAMENKAPSELN MEHR"],"SEEDBOMB {n}/{max} RELEASED":["SEMILLA {n}/{max} LANZADA","GRAINE {n}/{max} LANCÉE","SAMENKAPSEL {n}/{max} ABGEWORFEN"],"THREE SHOTS MISSED · MISSION FAILED":["TRES LANZAMIENTOS FALLIDOS · MISIÓN FALLIDA","TROIS LANCERS MANQUÉS · MISSION ÉCHOUÉE","DREI WÜRFE VERFEHLT · MISSION GESCHEITERT"],"BATTERY EMPTY · TIME RAN OUT":["BATERÍA AGOTADA · SE ACABÓ EL TIEMPO","BATTERIE VIDE · TEMPS ÉCOULÉ","AKKU LEER · ZEIT ABGELAUFEN"],"ALL SITES READY! DROP SAPLINGS INTO THE HOLES":["¡TODAS LAS ZONAS LISTAS! PLANTA LAS PLÁNTULAS","TOUS LES SITES SONT PRÊTS ! PLANTEZ LES POUSSES","ALLE FLÄCHEN BEREIT! SETZE DIE JUNGPFLANZEN EIN"],"ROCK IMPACT! AVOID THE STONES":["¡IMPACTO CON ROCA! EVITA LAS PIEDRAS","CHOC AVEC UN ROCHER ! ÉVITEZ LES PIERRES","FELSEN GETROFFEN! WEICHE DEN STEINEN AUS"],"SOIL POD MISSED! AIM FOR A MARKER":["¡FALLÓ LA CÁPSULA! APUNTA A UN MARCADOR","CAPSULE MANQUÉE ! VISEZ UN REPÈRE","BODENKAPSEL VERFEHLT! ZIELE AUF EINE MARKIERUNG"],"SAPLING MISSED! COMPENSATE FOR WIND":["¡FALLÓ LA PLÁNTULA! COMPENSA EL VIENTO","POUSSE MANQUÉE ! COMPENSEZ LE VENT","JUNGPFLANZE VERFEHLT! GLEICHE DEN WIND AUS"],"SEEDBOMB MISSED · ADJUST FOR WIND":["SEMILLA FALLIDA · AJUSTA POR EL VIENTO","GRAINE MANQUÉE · AJUSTEZ SELON LE VENT","SAMENKAPSEL VERFEHLT · WIND AUSGLEICHEN"],"SOIL SUPPLY EXHAUSTED":["SE AGOTARON LAS CÁPSULAS DE TIERRA","STOCK DE CAPSULES ÉPUISÉ","BODENKAPSELN AUFGEBRAUCHT"],"SAPLING SUPPLY EXHAUSTED":["SE AGOTARON LAS PLÁNTULAS","STOCK DE POUSSES ÉPUISÉ","JUNGPFLANZEN AUFGEBRAUCHT"],"SEEDBOMB SUPPLY EXHAUSTED":["SE AGOTARON LAS SEMILLAS","STOCK DE GRAINES ÉPUISÉ","SAMENKAPSELN AUFGEBRAUCHT"],"THE PROJECT COMPARISON":["COMPARACIÓN DEL PROYECTO","COMPARAISON DU PROJET","DER PROJEKTVERGLEICH"],"WHY CAN THE RESULTS DIFFER?":["¿POR QUÉ PUEDEN VARIAR LOS RESULTADOS?","POURQUOI LES RÉSULTATS DIFFÈRENT-ILS ?","WARUM KÖNNEN DIE ERGEBNISSE ABWEICHEN?"],"Nursery-grown saplings start larger and stronger.":["Las plántulas de vivero comienzan más grandes y fuertes.","Les jeunes plants de pépinière sont plus grands et robustes.","Jungpflanzen aus Baumschulen sind anfangs größer und kräftiger."],"They can be planted into prepared sites.":["Se pueden plantar en zonas preparadas.","Ils peuvent être plantés sur des sites préparés.","Sie können in vorbereitete Flächen gepflanzt werden."],"Species, soil, weather and aftercare all matter.":["La especie, el suelo, el clima y los cuidados importan.","L'espèce, le sol, le climat et les soins comptent.","Art, Boden, Wetter und Pflege spielen eine Rolle."],"Real survival rates vary by project and location.":["La supervivencia real varía según el proyecto y el lugar.","Les taux de survie réels varient selon le projet et le lieu.","Die tatsächlichen Überlebensraten unterscheiden sich je nach Projekt und Ort."]};
+  const LANG_NAMES={en:"English",es:"Español",fr:"Français",de:"Deutsch"};
+  const LANG_KEY="sapling-droppers-language-v1";
+  function detectLanguage(){try{const saved=localStorage.getItem(LANG_KEY);if(saved&&LANG_NAMES[saved])return saved}catch(_){}const code=(navigator.language||"en").slice(0,2).toLowerCase();return LANG_NAMES[code]?code:"en"}
+  let currentLanguage=detectLanguage();
+  function tr(key,values={}){let row=LANGUAGE_TEXT[key];let out=currentLanguage==="en"||!row?key:row[["es","fr","de"].indexOf(currentLanguage)];return out.replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(values,k)?String(values[k]):m)}
+  function applyLanguage(){
+    document.documentElement.lang=currentLanguage;
+    const picker=document.getElementById("languageSelect");if(picker)picker.value=currentLanguage;
+    const map={tagline:"PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN",windProfileLabel:"WIND PROFILE",globalPlaysLabel:"GLOBAL PLAYS",personalBestLabel:"PERSONAL BEST",coverKicker:"BY THE BIO BLAZERS",coverTagline:"PLANT A FOREST. BEAT THE WIND.",playLabel:"PLAY",updateLogLabel:"UPDATE LOG",coverFootnote:"A PIXEL REFORESTATION ARCADE GAME",currentBuildLabel:"CURRENT BUILD",touchCaption:"TOUCH CONTROLS",downloadLabel:"DOWNLOAD TO FILES",restartLabel:"RESTART MISSION",logKicker:"BIO BLAZERS DEVELOPMENT NOTES",logFooter:"MADE BY THE BIO BLAZERS · THANKS FOR PLAYING"};
+    Object.entries(map).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=tr(key)});
+    document.querySelectorAll("[data-mode]").forEach(b=>b.textContent=tr(b.dataset.mode.toUpperCase()));
+    const desc=document.querySelector(".mode-description");if(desc)desc.textContent=tr(MODE_SETTINGS[activeMode].description);
+    const pickerLabel=document.querySelector(".language-label");if(pickerLabel)pickerLabel.textContent=tr("LANGUAGE");
+    const desktop=document.querySelector(".desktop-help");
+    if(desktop){const help={en:'<kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> MOVE &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>W</kbd> <kbd>S</kbd> ALTITUDE<br><kbd>SPACE</kbd> ACTION &nbsp; <kbd>ENTER</kbd> START / RESTART<br>Select a wind profile above. Level 2 uses the same action key for seedbombs. 3 misses across the campaign = mission failed.',es:'<kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> MOVER &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>W</kbd> <kbd>S</kbd> ALTITUD<br><kbd>ESPACIO</kbd> ACCIÓN &nbsp; <kbd>ENTER</kbd> INICIAR / REINICIAR<br>Elige un perfil de viento arriba. 3 fallos = misión fallida.',fr:'<kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> BOUGER &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>W</kbd> <kbd>S</kbd> ALTITUDE<br><kbd>ESPACE</kbd> ACTION &nbsp; <kbd>ENTRÉE</kbd> DÉMARRER / RECOMMENCER<br>Choisissez un profil de vent. 3 échecs = mission échouée.',de:'<kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> BEWEGEN &nbsp; <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>W</kbd> <kbd>S</kbd> HÖHE<br><kbd>LEERTASTE</kbd> AKTION &nbsp; <kbd>ENTER</kbd> START / NEUSTART<br>Wähle ein Windprofil. 3 Fehler = Mission gescheitert.'};desktop.innerHTML=help[currentLanguage]||help.en}
+  }
+
   const MODE_SETTINGS = {
     normal: {
       label:'NORMAL', description:'Gentle breeze · 105 seconds · forgiving aim',
@@ -695,7 +717,7 @@
     victoryTimer = 0;
     drone = {x:145,y:180,vx:0,vy:0,prop:0};
     pods = []; saplings = []; holes = []; particles = [];
-    frame = 0; message = 'LEVEL 1 · SOIL PODS, THEN SAPLINGS'; messageTimer = 230;
+    frame = 0; message = tr('LEVEL 1 · SOIL PODS, THEN SAPLINGS'); messageTimer = 230;
     cooldown = 0; score = 0; newHighScore = false; soilAttempts = 0; plantAttempts = 0; misses = 0;
     timeLeft = settings().seconds * 60;
     wind = 0; windBase = 0; windTarget = rand(-settings().windTargetMax,settings().windTargetMax); gust = 0; gustTimer = 0; windShiftTimer = 0;
@@ -706,19 +728,19 @@
     const leftLabel = document.getElementById('leftStatLabel');
     const rightLabel = document.getElementById('rightStatLabel');
     if (level === 1) {
-      leftLabel.textContent = 'GROUND SITES';
-      rightLabel.textContent = 'SAPLINGS';
+      leftLabel.textContent = tr('GROUND SITES');
+      rightLabel.textContent = tr('SAPLINGS');
       soilCountEl.textContent = `${holes.length} / ${TOTAL}`;
       plantCountEl.textContent = `${plantedCount()} / ${TOTAL}`;
-      soilExtraEl.textContent = `PODS ${soilAttempts}/${settings().maxAttempts} · MISS ${misses}/${MAX_MISSES}`;
-      plantExtraEl.textContent = `DROPS ${plantAttempts}/${settings().maxAttempts} · MISS ${misses}/${MAX_MISSES}`;
+      soilExtraEl.textContent = `${tr('PODS')} ${soilAttempts}/${settings().maxAttempts} · ${tr('MISS')} ${misses}/${MAX_MISSES}`;
+      plantExtraEl.textContent = `${tr('DROPS')} ${plantAttempts}/${settings().maxAttempts} · ${tr('MISS')} ${misses}/${MAX_MISSES}`;
     } else {
-      leftLabel.textContent = 'TARGETS HIT';
-      rightLabel.textContent = 'SEEDBOMBS';
+      leftLabel.textContent = tr('TARGETS HIT');
+      rightLabel.textContent = tr('SEEDBOMBS');
       soilCountEl.textContent = `${seedbombHits.length} / ${TOTAL}`;
       plantCountEl.textContent = `${seedbombAttempts} / ${settings().maxAttempts}`;
-      soilExtraEl.textContent = `SITES REACHED · MISS ${misses}/${MAX_MISSES}`;
-      plantExtraEl.textContent = `RELEASED · MISS ${misses}/${MAX_MISSES}`;
+      soilExtraEl.textContent = `${tr('SITES REACHED')} · ${tr('MISS')} ${misses}/${MAX_MISSES}`;
+      plantExtraEl.textContent = `${tr('RELEASED')} · ${tr('MISS')} ${misses}/${MAX_MISSES}`;
     }
     let label = 'MISSION READY';
     if (state === 'celebrating') label = 'LEVEL 1 · FOREST GROWING…';
@@ -729,12 +751,12 @@
     else if (state === 'playing' && level === 2) label = 'LEVEL 2 · SEEDBOMB TRIAL';
     else if (state === 'playing' && phase === 'soil') label = 'LEVEL 1 · PREPARE SOIL';
     else if (state === 'playing') label = 'LEVEL 1 · PLANT SAPLINGS';
-    phaseLabel.innerHTML = `${label}<br><small>SCORE ${score.toLocaleString()}</small>`;
+    phaseLabel.innerHTML = `${tr(label)}<br><small>${tr('SCORE')} ${score.toLocaleString()}</small>`;
     updatePersonalBestDisplay();
     const touchAction = document.querySelector('[data-control="action"]');
-    if (touchAction) touchAction.textContent = level === 2 ? 'SEEDBOMB' : 'DROP / PLANT';
+    if (touchAction) touchAction.textContent = tr(level === 2 ? 'SEEDBOMB' : 'DROP / PLANT');
     const mobileHelp = document.querySelector('.mobile-help');
-    if (mobileHelp) mobileHelp.textContent = level === 2 ? 'Aim for the marked sites and tap SEEDBOMB to release a seed capsule. Three misses ends the campaign.' : 'Use the direction pad to fly. Tap DROP / PLANT to release a pod or sapling. Three misses ends the mission.';
+    if (mobileHelp) mobileHelp.textContent = tr(level === 2 ? 'Aim for the marked sites and tap SEEDBOMB to release a seed capsule. Three misses ends the campaign.' : 'Use the direction pad to fly. Tap DROP / PLANT to release a pod or sapling. Three misses ends the mission.');
   }
 
   function startSeedbombLevel() {
@@ -746,7 +768,7 @@
     seedbombAttempts = 0; seedbombHits = []; seedbombTree = null; dialoguePage = 0;
     timeLeft = settings().seconds * 60;
     wind = 0; windBase = 0; windTarget = rand(-settings().windTargetMax,settings().windTargetMax); gust = 0; gustTimer = 0; windShiftTimer = 0;
-    cooldown = 0; message = 'LEVEL 2 · RELEASE SEEDBOMBS ON THE NEW MARKERS'; messageTimer = 240;
+    cooldown = 0; message = tr('LEVEL 2 · RELEASE SEEDBOMBS ON THE NEW MARKERS'); messageTimer = 240;
     state = 'playing'; keys.clear(); updateHud();
   }
 
@@ -821,6 +843,7 @@
     recordGlobalPlay();
   }
   document.getElementById('playGame').addEventListener('click', startOrRestart);
+  document.getElementById('languageSelect').addEventListener('change',e=>{if(!LANG_NAMES[e.target.value])return;currentLanguage=e.target.value;try{localStorage.setItem(LANG_KEY,currentLanguage)}catch(_){}applyLanguage();syncModePicker();updateHud();render()});
   const updateLog = document.getElementById('updateLog');
   const openUpdateLog = document.getElementById('openUpdateLog');
   const closeUpdateLog = document.getElementById('closeUpdateLog');
@@ -846,8 +869,8 @@
       const selected = button.dataset.mode === activeMode;
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
-    document.getElementById('modeDescription').textContent = settings().description;
-    document.querySelector('.version').innerHTML = `FIELD SIMULATOR<br>BUILD 1.6.7 · ${settings().label} MODE`;
+    document.getElementById('modeDescription').textContent = tr(settings().description);
+    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.6.8 · ${tr(settings().label)} MODE`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
@@ -964,27 +987,27 @@
     if (cooldown > 0) return;
     cooldown = 22;
     if (phase === 'soil') {
-      if (soilAttempts >= settings().maxAttempts) { message = 'NO SOIL PODS LEFT'; messageTimer = 65; return; }
+      if (soilAttempts >= settings().maxAttempts) { message = tr('NO SOIL PODS LEFT'); messageTimer = 65; return; }
       soilAttempts++;
       pods.push(makeWindborne('soil',drone.x,drone.y+21,.55));
       puff(drone.x,drone.y+26,'#d0a35e',4);
-      message = `SOIL POD ${soilAttempts}/${settings().maxAttempts} RELEASED`;
+      message = tr('SOIL POD {n}/{max} RELEASED',{n:soilAttempts,max:settings().maxAttempts});
       messageTimer = 45;
     } else if (phase === 'plant') {
-      if (plantAttempts >= settings().maxAttempts) { message = 'NO SAPLINGS LEFT'; messageTimer = 65; return; }
+      if (plantAttempts >= settings().maxAttempts) { message = tr('NO SAPLINGS LEFT'); messageTimer = 65; return; }
       plantAttempts++;
       saplings.push({...makeWindborne('sapling',drone.x,drone.y+20,1.1),landed:false});
       puff(drone.x,drone.y+22,'#b4d779',5);
-      message = `SAPLING DROP ${plantAttempts}/${settings().maxAttempts}`;
+      message = tr('SAPLING DROP {n}/{max}',{n:plantAttempts,max:settings().maxAttempts});
       messageTimer = 45;
     } else if (phase === 'seedbomb') {
-      if (seedbombAttempts >= settings().maxAttempts) { message = 'NO SEEDBOMBS LEFT'; messageTimer = 65; return; }
+      if (seedbombAttempts >= settings().maxAttempts) { message = tr('NO SEEDBOMBS LEFT'); messageTimer = 65; return; }
       seedbombAttempts++;
       const bomb = makeWindborne('seedbomb',drone.x,drone.y+14,1.25);
       bomb.vx = clamp(drone.vx*.34 + wind*.28,-1.8,1.8);
       pods.push(bomb);
       airPuff(drone.x,drone.y+22);
-      message = `SEEDBOMB ${seedbombAttempts}/${settings().maxAttempts} RELEASED`;
+      message = tr('SEEDBOMB {n}/{max} RELEASED',{n:seedbombAttempts,max:settings().maxAttempts});
       messageTimer = 45;
     }
     updateHud();
@@ -1017,10 +1040,10 @@
     const penalty = Math.round(35 * scoreMultiplier());
     score = Math.max(0,score-penalty);
     if (misses >= MAX_MISSES) {
-      gameOver('THREE SHOTS MISSED · MISSION FAILED');
+      gameOver(tr('THREE SHOTS MISSED · MISSION FAILED'));
       return true;
     }
-    message = `${reason} · MISS ${misses}/${MAX_MISSES} · -${penalty} PTS`;
+    message = `${reason} · ${tr('MISS')} ${misses}/${MAX_MISSES} · -${penalty} PTS`;
     messageTimer = 90;
     updateHud();
     return false;
@@ -1067,7 +1090,7 @@
       victoryTimer++;
       if (victoryTimer >= 192) {
         state = 'dialogue'; dialoguePage = 0;
-        message = 'FIELD REPORT · TAP OR PRESS ENTER TO CONTINUE'; messageTimer = 999999;
+        message = tr('FIELD REPORT · TAP OR PRESS ENTER TO CONTINUE'); messageTimer = 999999;
         updateHud();
       }
       return;
@@ -1077,7 +1100,7 @@
     updateWind();
 
     timeLeft--;
-    if (timeLeft <= 0) { timeLeft = 0; gameOver('BATTERY EMPTY · TIME RAN OUT'); return; }
+    if (timeLeft <= 0) { timeLeft = 0; gameOver(tr('BATTERY EMPTY · TIME RAN OUT')); return; }
 
     const left = keys.has('arrowleft') || keys.has('a');
     const right = keys.has('arrowright') || keys.has('d');
@@ -1107,7 +1130,7 @@
         const rock = rocks.find(r => Math.abs(r.x-p.x) <= r.w*.48 + 2);
         if (rock) {
           puff(p.x,impactGround-5,'#9a9a8d',7);
-          if (registerMiss('ROCK IMPACT! AVOID THE STONES')) return;
+          if (registerMiss(tr('ROCK IMPACT! AVOID THE STONES'))) return;
           return;
         }
         puff(p.x,impactGround-5,'#b78b4a',8);
@@ -1118,13 +1141,13 @@
           if (target && landingOffset <= settings().soilTolerance) {
             holes.push({x:target.x,y:target.y,targetIndex:target.index,planted:false,born:frame});
             const earned = awardScore(15,20,landingOffset,settings().soilTolerance);
-            message = `SITE PREPARED ${holes.length}/${TOTAL} · +${earned}`; messageTimer = 58;
+            message = tr('SITE PREPARED {n}/{total} · +{earned}',{n:holes.length,total:TOTAL,earned}); messageTimer = 58;
             puff(target.x,target.y-5,'#d7b36e',10);
             if (holes.length === TOTAL) {
-              phase = 'plant'; message = 'ALL SITES READY! DROP SAPLINGS INTO THE HOLES'; messageTimer = 220;
+              phase = 'plant'; message = tr('ALL SITES READY! DROP SAPLINGS INTO THE HOLES'); messageTimer = 220;
             }
           } else {
-            if (registerMiss('SOIL POD MISSED! AIM FOR A MARKER')) return;
+            if (registerMiss(tr('SOIL POD MISSED! AIM FOR A MARKER'))) return;
           }
         } else if (p.kind === 'sapling') {
           const available = holes.filter(h=>!h.planted);
@@ -1133,11 +1156,11 @@
           if (hole && landingOffset <= settings().plantTolerance) {
             hole.planted = true;
             const earned = awardScore(80,80,landingOffset,settings().plantTolerance);
-            message = `SAPLING PLANTED +${earned} · ${plantedCount()}/${TOTAL}`; messageTimer = 70;
+            message = tr('SAPLING PLANTED +{earned} · {n}/{total}',{earned,n:plantedCount(),total:TOTAL}); messageTimer = 70;
             puff(hole.x,hole.y-14,'#a9d66c',13);
           } else {
             puff(p.x,impactGround-5,'#7aa65b',5);
-            if (registerMiss('SAPLING MISSED! COMPENSATE FOR WIND')) return;
+            if (registerMiss(tr('SAPLING MISSED! COMPENSATE FOR WIND'))) return;
           }
         } else if (p.kind === 'seedbomb') {
           const available = TARGETS.filter(t=>!targetUsed(t.index));
@@ -1147,11 +1170,11 @@
           if (target && landingOffset <= tolerance) {
             seedbombHits.push({x:target.x,y:target.y,targetIndex:target.index});
             const earned = awardScore(30,30,landingOffset,tolerance);
-            message = `SEEDBOMB PLACED +${earned} · ${seedbombHits.length}/${TOTAL}`; messageTimer = 60;
+            message = tr('SEEDBOMB PLACED +{earned} · {n}/{total}',{earned,n:seedbombHits.length,total:TOTAL}); messageTimer = 60;
             puff(target.x,target.y-5,'#b6a16a',8);
           } else {
             puff(p.x,impactGround-5,'#9c8050',5);
-            if (registerMiss('SEEDBOMB MISSED · ADJUST FOR WIND')) return;
+            if (registerMiss(tr('SEEDBOMB MISSED · ADJUST FOR WIND'))) return;
           }
         }
       }
@@ -1180,29 +1203,30 @@
     particles = particles.filter(p=>p.life>0);
 
     if (phase === 'soil' && soilAttempts >= settings().maxAttempts && pods.filter(p=>p.kind==='soil').length === 0 && holes.length < TOTAL) {
-      gameOver('SOIL SUPPLY EXHAUSTED'); return;
+      gameOver(tr('SOIL SUPPLY EXHAUSTED')); return;
     }
     if (phase === 'plant' && plantAttempts >= settings().maxAttempts && saplings.length === 0 && pods.filter(p=>p.kind==='sapling').length === 0 && plantedCount() < TOTAL) {
-      gameOver('SAPLING SUPPLY EXHAUSTED'); return;
+      gameOver(tr('SAPLING SUPPLY EXHAUSTED')); return;
     }
     if (phase === 'plant' && plantedCount() === TOTAL && saplings.length === 0 && pods.filter(p=>p.kind==='sapling').length === 0) {
       const stageBonus = awardStageBonus();
-      state = 'celebrating'; victoryTimer = 0; message = `THE FOREST IS GROWING! STAGE BONUS +${stageBonus}`; messageTimer = 999999; updateHud();
+      state = 'celebrating'; victoryTimer = 0; message = tr('THE FOREST IS GROWING! STAGE BONUS +{bonus}',{bonus:stageBonus}); messageTimer = 999999; updateHud();
     }
     if (phase === 'seedbomb' && seedbombAttempts >= settings().maxAttempts && pods.filter(p=>p.kind==='seedbomb').length === 0 && seedbombHits.length < TOTAL) {
-      gameOver('SEEDBOMB SUPPLY EXHAUSTED'); return;
+      gameOver(tr('SEEDBOMB SUPPLY EXHAUSTED')); return;
     }
     if (phase === 'seedbomb' && seedbombHits.length === TOTAL && pods.filter(p=>p.kind==='seedbomb').length === 0) {
       const stageBonus = awardStageBonus();
       state = 'seedbombCelebrating'; victoryTimer = 0;
       seedbombTree = {...seedbombHits[Math.floor(Math.random()*seedbombHits.length)]};
-      message = `ONLY ONE SEEDBOMB SITE WILL ESTABLISH · BONUS +${stageBonus}`; messageTimer = 999999; updateHud();
+      message = tr('ONLY ONE SEEDBOMB SITE WILL ESTABLISH · BONUS +{bonus}',{bonus:stageBonus}); messageTimer = 999999; updateHud();
     }
     updateHud();
   }
 
   function rect(x,y,w,h,c) { ctx.fillStyle=c; ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h)); }
   function text(str,x,y,size,color,align='center') {
+    str=tr(String(str));
     const displayRatio = canvas.getBoundingClientRect().width / W;
     // Canvas keeps a stable 960x540 game world; scale type up internally on narrow phones
     // so important HUD/overlay labels remain legible after the canvas is fitted to screen width.
@@ -1375,8 +1399,9 @@
     rect(650,14,296,42,'#214332'); rect(654,18,288,34,'#31583c');
     const seconds = Math.ceil(timeLeft/60);
     const dir = wind < -.08 ? '<' : wind > .08 ? '>' : '-';
-    text(`TIME ${String(seconds).padStart(2,'0')}s`,666,39,12,seconds<15?'#ffcf8a':'#e2f4b8','left');
-    const windLabel = phoneLayout ? `${Math.abs(wind)>1.28?'GALE':'WIND'} ${dir}${Math.abs(wind).toFixed(1)}` : (Math.abs(wind) > 1.28 ? `GALE! ${dir} ${Math.abs(wind).toFixed(1)}` : `WIND ${dir} ${Math.abs(wind).toFixed(1)}`);
+    text(tr('TIME {n}s',{n:String(seconds).padStart(2,'0')}),666,39,12,seconds<15?'#ffcf8a':'#e2f4b8','left');
+    const speed=Math.abs(wind).toFixed(1);
+    const windLabel=phoneLayout?(Math.abs(wind)>1.28?tr('GALE {dir}{speed}',{dir,speed}):tr('WIND {dir} {speed}',{dir,speed})):(Math.abs(wind)>1.28?tr('GALE! {dir} {speed}',{dir,speed}):tr('WIND {dir} {speed}',{dir,speed}));
     text(windLabel,930,39,12,Math.abs(wind)>.9?'#ffcf8a':'#e2f4b8','right');
   }
 
@@ -1519,6 +1544,7 @@
   }
 
   function loop() { update(); render(); requestAnimationFrame(loop); }
+  applyLanguage();
   // Initialize all state before the first HUD update or animation frame.
   drone = {x:145,y:180,vx:0,vy:0,prop:0};
   pods = []; saplings = []; holes = []; particles = [];
