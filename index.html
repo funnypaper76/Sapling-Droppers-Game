@@ -874,100 +874,71 @@
     });
   }
 
-  function drawBiomeTree(x, groundY, scale, growth, kind, variant, distant=false) {
+  // Every species uses the same chunky rectangle-based pixel-art language
+  // as the original tree. Only the silhouette changes from biome to biome.
+  function drawBiomeTree(x, groundY, scale, growth, kind, variant) {
     const g = clamp(growth, 0, 1);
     if (g <= 0) return;
     const biome = activeBiome || BIOMES[0];
-    const sway = Math.sin(frame*.035 + x)*1.5*g;
-    const trunkH = 78*scale*g;
-    const trunkW = Math.max(2, 6*scale*g);
-    const crownY = groundY-trunkH;
-    const crownW = 48*scale*g;
-    const crownH = 39*scale*g;
-    const px = x+sway;
+    const sway = Math.round(Math.sin(frame*.035 + x)*1.5*g*scale);
+    const px = Math.round(x + sway);
+    const base = Math.round(groundY);
+    const trunkH = Math.round(54*scale*g);
+    const trunkW = Math.max(2,Math.round(6*scale*g));
+    const crownH = Math.round(39*scale*g);
+    const crownW = Math.round(38*scale*g);
+    const top = base-trunkH-crownH+Math.round(7*scale*g);
     const colors = biome.trees;
-    const leaf = colors[variant % colors.length];
+    const a = colors[(variant||0)%colors.length];
+    const b = colors[((variant||0)+1)%colors.length];
+    const c = colors[((variant||0)+2)%colors.length];
+    const block = (ox,oy,w,h,color) => {
+      if (w > 0 && h > 0) rect(px+Math.round(ox*scale), base+Math.round(oy*scale), Math.max(1,Math.round(w*scale)), Math.max(1,Math.round(h*scale)), color);
+    };
 
     if (kind === 'pine') {
-      rect(px-trunkW/2, crownY+trunkH*.45, trunkW, trunkH*.55, biome.trunk);
-      for (let tier=0;tier<3;tier++) {
-        const top = crownY + tier*crownH*.30;
-        const width = crownW*(1-tier*.19);
-        const base = top+crownH*.62;
-        ctx.beginPath();
-        ctx.moveTo(px,top);
-        ctx.lineTo(px-width/2,base);
-        ctx.lineTo(px+width/2,base);
-        ctx.closePath();
-        ctx.fillStyle = colors[(variant+tier)%colors.length];
-        ctx.fill();
-        if (biome.id === 'alpine') {
-          ctx.beginPath();
-          ctx.moveTo(px,top);
-          ctx.lineTo(px-width*.18,top+crownH*.23);
-          ctx.lineTo(px+width*.18,top+crownH*.23);
-          ctx.closePath();
-          ctx.fillStyle = '#edf2ed';
-          ctx.fill();
-        }
-      }
+      // Three square-edged tiers make a simple evergreen silhouette.
+      block(-2,-trunkH*.58,4,trunkH*.58,biome.trunk);
+      block(-5,-trunkH*.62-crownH*.05,10,crownH*.22,a);
+      block(-9,-trunkH*.82-crownH*.02,18,crownH*.28,b);
+      block(-13,-trunkH-crownH*.04,26,crownH*.34,c);
+      block(-2,-trunkH*.72,4,3,'#8ebd83');
       return;
     }
 
     if (kind === 'palm') {
-      ctx.beginPath();
-      ctx.moveTo(px,groundY);
-      ctx.quadraticCurveTo(px+scale*7,groundY-trunkH*.55,px+scale*2,crownY+8*scale);
-      ctx.strokeStyle = biome.trunk;
-      ctx.lineWidth = trunkW;
-      ctx.lineCap = 'square';
-      ctx.stroke();
-      const cx=px+scale*2, cy=crownY+8*scale;
-      for (let i=0;i<7;i++) {
-        const angle=Math.PI+(i/6)*Math.PI;
-        const ex=cx+Math.cos(angle)*trunkH*.48;
-        const ey=cy+Math.sin(angle)*trunkH*.32;
-        ctx.beginPath();
-        ctx.moveTo(cx,cy);
-        ctx.quadraticCurveTo(cx+Math.cos(angle)*trunkH*.26,cy+Math.sin(angle)*trunkH*.22-5*scale,ex,ey);
-        ctx.strokeStyle=colors[i%colors.length];
-        ctx.lineWidth=Math.max(2,4*scale*g);
-        ctx.stroke();
-        for(let leafSide=1;leafSide<=3;leafSide++) {
-          const t=leafSide/4;
-          const lx=cx+(ex-cx)*t, ly=cy+(ey-cy)*t;
-          const spread=(1-t)*9*scale*g;
-          ctx.beginPath();
-          ctx.moveTo(lx,ly);
-          ctx.lineTo(lx-spread,ly-5*scale*g);
-          ctx.moveTo(lx,ly);
-          ctx.lineTo(lx+spread,ly-5*scale*g);
-          ctx.strokeStyle=colors[(i+leafSide)%colors.length];
-          ctx.lineWidth=Math.max(1,2*scale*g);
-          ctx.stroke();
-        }
-      }
-      rect(cx-3*scale,cy-3*scale,6*scale,5*scale,'#b88a4e');
+      // Short offset trunk blocks and a handful of chunky fronds.
+      block(-2,-trunkH*.70,4,trunkH*.22,biome.trunk);
+      block(0,-trunkH*.48,4,trunkH*.22,biome.trunk);
+      block(2,-trunkH*.27,4,trunkH*.27,biome.trunk);
+      const crown = base-trunkH;
+      rect(px-3*scale,crown-3*scale,6*scale,5*scale,'#b88a4e');
+      rect(px-17*scale,crown-10*scale,12*scale,4*scale,a);
+      rect(px-13*scale,crown-15*scale,10*scale,4*scale,b);
+      rect(px-7*scale,crown-19*scale,10*scale,4*scale,c);
+      rect(px+4*scale,crown-17*scale,12*scale,4*scale,a);
+      rect(px+9*scale,crown-12*scale,12*scale,4*scale,b);
+      rect(px-2*scale,crown-22*scale,8*scale,4*scale,c);
       return;
     }
 
     if (kind === 'acacia') {
-      rect(px-trunkW/2,groundY-trunkH*.68,trunkW,trunkH*.68,biome.trunk);
-      rect(px-trunkW*.12,crownY+trunkH*.16,trunkW*.7,trunkH*.24,biome.trunk);
-      rect(px-crownW*.58,crownY+crownH*.24,crownW*1.16,crownH*.23,colors[0]);
-      rect(px-crownW*.45,crownY+crownH*.08,crownW*.90,crownH*.22,leaf);
-      rect(px-crownW*.26,crownY,crownW*.52,crownH*.18,colors[2]);
-      rect(px-crownW*.48,crownY+crownH*.36,crownW*.96,crownH*.12,colors[1]);
+      // A flat umbrella crown distinguishes the desert tree without extra detail.
+      block(-2,-trunkH*.70,4,trunkH*.70,biome.trunk);
+      block(-10,-trunkH*.70-crownH*.18,20,crownH*.20,a);
+      block(-17,-trunkH*.70-crownH*.02,34,crownH*.22,b);
+      block(-14,-trunkH*.70-crownH*.20,28,crownH*.17,c);
+      block(-7,-trunkH*.70-crownH*.27,14,crownH*.10,a);
       return;
     }
 
-    // Broadleaf deciduous tree.
-    rect(px-trunkW/2,groundY-trunkH*.72,trunkW,trunkH*.72,biome.trunk);
-    rect(px-trunkW*.16,crownY+trunkH*.24,trunkW*.32,trunkH*.30,biome.trunk);
-    rect(px-crownW*.30,crownY+crownH*.48,crownW*.60,crownH*.48,colors[0]);
-    rect(px-crownW*.48,crownY+crownH*.24,crownW*.96,crownH*.48,leaf);
-    rect(px-crownW*.27,crownY,crownW*.54,crownH*.40,colors[2]);
-    rect(px-crownW*.13,crownY+crownH*.13,crownW*.16,crownH*.12,biome.highlight);
+    // Original-style broadleaf tree: straight trunk and three square leaf tiers.
+    block(-3,-trunkH,6,trunkH,biome.trunk);
+    block(-1,-trunkH+8*scale,2,Math.max(1,trunkH-10*scale),'#a97945');
+    rect(px-Math.round(crownW*.30),top+Math.round(crownH*.48),Math.round(crownW*.60),Math.round(crownH*.48),a);
+    rect(px-Math.round(crownW*.48),top+Math.round(crownH*.24),Math.round(crownW*.96),Math.round(crownH*.48),b);
+    rect(px-Math.round(crownW*.27),top,Math.round(crownW*.54),Math.round(crownH*.40),c);
+    rect(px-Math.round(crownW*.13),top+Math.round(crownH*.13),Math.round(crownW*.16),Math.round(crownH*.12),biome.highlight);
   }
 
   function drawGrowingTree(h, growth) {
