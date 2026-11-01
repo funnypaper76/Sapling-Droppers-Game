@@ -27,6 +27,8 @@
   .global-plays strong { color:#d7f6a6; font-size:14px; margin-left:5px; }
   .personal-best-display { color:#f3d97c; font-size:10px; letter-spacing:1px; white-space:nowrap; margin-left:12px; }
   .personal-best-display strong { color:#d7f6a6; font-size:14px; margin-left:5px; }
+  .sound-toggle { min-height:32px; padding:6px 10px; font-size:10px; letter-spacing:.4px; white-space:nowrap; }
+  .sound-toggle[aria-pressed="false"] { color:#b6c9a3; border-color:#61705c; background:#202e28; }
   @media (max-width:650px) {
     .global-plays, .personal-best-display { grid-column:1/-1; text-align:center; margin:2px 0 0; }
   }
@@ -81,6 +83,7 @@
     .mode-label, .mode-description, .language-label { grid-column:1/-1; width:auto; margin:0; }
     .mode-button { min-width:0; min-height:44px; padding:10px 3px; font-size:10px; letter-spacing:.5px; }
     .mode-description { font-size:10px; text-align:center; }
+    .sound-toggle { grid-column:1/-1; justify-self:center; min-height:36px; }
     .screen { border-width:3px; outline-width:2px; box-shadow:0 6px 0 #0b1512,0 10px 24px #0007; }
     canvas { width:100%; height:auto; aspect-ratio:16/9; touch-action:manipulation; }
     .hud { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px; padding-top:11px; }
@@ -450,7 +453,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.15 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.16 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option><option value="trailer">Overly Dramatic (Movie Trailer)</option></select>
@@ -461,6 +464,7 @@
     <span id="modeDescription" class="mode-description">Gentle breeze · 105 seconds · forgiving aim</span>
     <span class="global-plays" aria-live="polite"><span id="globalPlaysLabel">GLOBAL PLAYS</span> <strong id="globalPlays">…</strong></span>
     <span class="personal-best-display"><span id="personalBestLabel">PERSONAL BEST</span> <strong id="personalBest">0</strong></span>
+    <button id="soundToggle" class="button-muted sound-toggle" type="button" aria-label="Turn sound off" aria-pressed="true">♫ <span id="soundLabel">SOUND ON</span></button>
   </nav>
   <section id="gameCover" class="game-cover" aria-label="Sapling Droppers game cover">
     <div class="cover-scene" aria-hidden="true">
@@ -503,7 +507,7 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.15</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.16</div>
       <div class="update-log-list">
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_31">TRAILER VOICE LINE POLISH</div><p data-i18n-key="LOG_DESC_31">Polished the dramatic language so special taglines stay intact while ordinary gameplay text still gets the full cinematic treatment.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_30">ONE DRONE. ONE FOREST. MAXIMUM DRAMA.</div><p data-i18n-key="LOG_DESC_30">Added Overly Dramatic Movie Trailer mode, with epic menu labels, heroic saplings, an unstoppable wind, and a narrator who treats every seed like destiny.</p></article>
@@ -798,6 +802,7 @@
   function applyLanguage(){
     document.documentElement.lang=["old","british","pirate","entish","trailer"].includes(currentLanguage)?"en":currentLanguage;
     document.body.classList.toggle("entish-mode",currentLanguage==="entish");
+    updateSoundToggle();
     const picker=document.getElementById("languageSelect");if(picker)picker.value=currentLanguage;
     const map={tagline:"PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN",windProfileLabel:"WIND PROFILE",globalPlaysLabel:"GLOBAL PLAYS",personalBestLabel:"PERSONAL BEST",coverKicker:"TEAM_NAME",coverTagline:"PLANT A FOREST. BEAT THE WIND.",playLabel:"PLAY",updateLogLabel:"UPDATE LOG",coverFootnote:"A PIXEL REFORESTATION ARCADE GAME",currentBuildLabel:"CURRENT BUILD",touchCaption:"TOUCH CONTROLS",downloadLabel:"DOWNLOAD TO FILES",restartLabel:"RESTART MISSION",logKicker:"BIO BLAZERS DEVELOPMENT NOTES",logFooter:"MADE BY THE BIO BLAZERS · THANKS FOR PLAYING"};
     Object.entries(map).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=tr(key)});
@@ -866,6 +871,9 @@
   let state = 'title', phase = 'soil', drone, pods, saplings, holes, particles;
   let level = 1, seedbombAttempts = 0, seedbombHits = [], seedbombTree = null, dialoguePage = 0;
   let frame = 0, message = '', messageTimer = 0, cooldown = 0, score = 0, victoryTimer = 0;
+  const SOUND_KEY = 'sapling-droppers-sound-v1';
+  function readSoundEnabled(){try{const stored=window.localStorage.getItem(SOUND_KEY);return stored===null?true:stored!=='off'}catch(_){return true}}
+  let soundEnabled=readSoundEnabled(), audioContext=null, droneHumOscillator=null, droneHumGain=null, lastWindSoundFrame=-9999;
   let soilAttempts = 0, plantAttempts = 0, misses = 0, timeLeft = MODE_SETTINGS.normal.seconds * 60;
   let wind = 0, windBase = 0, windTarget = 0, gust = 0, gustTimer = 0, windShiftTimer = 0;
   const rand = (a,b) => a + Math.random()*(b-a);
@@ -965,6 +973,42 @@
     timeLeft = settings().seconds * 60;
     wind = 0; windBase = 0; windTarget = rand(-settings().windTargetMax,settings().windTargetMax); gust = 0; gustTimer = 0; windShiftTimer = 0;
     state = 'playing'; keys.clear(); updateHud();
+  }
+
+  function getAudioContext(){
+    if(!soundEnabled)return null;
+    try{const Ctor=window.AudioContext||window.webkitAudioContext;if(!Ctor)return null;if(!audioContext)audioContext=new Ctor();if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});return audioContext}catch(_){return null}
+  }
+  function playTone(ac,f,d,w='sine',v=.035,end=null,delay=0){
+    try{const start=ac.currentTime+delay,o=ac.createOscillator(),g=ac.createGain();o.type=w;o.frequency.setValueAtTime(f,start);if(end)o.frequency.exponentialRampToValueAtTime(Math.max(1,end),start+d);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(Math.max(.0002,v),start+.012);g.gain.exponentialRampToValueAtTime(.0001,start+d);o.connect(g);g.connect(ac.destination);o.start(start);o.stop(start+d+.025)}catch(_){}
+  }
+  function playSound(kind){
+    const ac=getAudioContext();if(!ac)return;const note=(f,d,w='sine',v=.035,end=null,delay=0)=>playTone(ac,f,d,w,v,end,delay);
+    if(kind==='drop')note(520,.13,'triangle',.035,235);
+    else if(kind==='plant'){note(620,.12,'sine',.035,760);note(850,.18,'sine',.032,1080,.105)}
+    else if(kind==='miss')note(185,.22,'triangle',.04,85);
+    else if(kind==='wind'){note(240,.35,'sawtooth',.018,95);note(330,.24,'sine',.009,145,.04)}
+    else if(kind==='bird'){note(980,.09,'sine',.012,1380);note(1280,.1,'sine',.01,1020,.11)}
+    else if(kind==='bonus'){note(660,.13,'sine',.04,820);note(880,.14,'sine',.04,1120,.12);note(1180,.2,'sine',.035,1450,.24)}
+    else if(kind==='victory'){note(523,.2,'triangle',.035,600);note(659,.2,'triangle',.035,750,.16);note(784,.2,'triangle',.04,900,.32);note(1046,.38,'sine',.04,1250,.48)}
+    else if(kind==='gameOver'){note(310,.24,'triangle',.03,180);note(210,.38,'sine',.03,105,.18)}
+    else if(kind==='ui')note(460,.09,'sine',.025,720);
+    else if(kind==='start'){note(392,.12,'triangle',.025,520);note(588,.17,'sine',.028,784,.12)}
+  }
+  function stopDroneHum(){
+    if(!droneHumOscillator||!audioContext)return;const o=droneHumOscillator,g=droneHumGain;droneHumOscillator=null;droneHumGain=null;
+    try{const now=audioContext.currentTime;g.gain.cancelScheduledValues(now);g.gain.setTargetAtTime(.0001,now,.045);o.stop(now+.22)}catch(_){}
+  }
+  function syncDroneHum(){
+    if(!soundEnabled||state!=='playing'){stopDroneHum();return}const ac=audioContext;if(!ac||ac.state!=='running'||droneHumOscillator)return;
+    try{const o=ac.createOscillator(),g=ac.createGain();o.type='sawtooth';o.frequency.value=74;g.gain.value=.0001;o.connect(g);g.connect(ac.destination);o.start();g.gain.setTargetAtTime(.012,ac.currentTime,.16);droneHumOscillator=o;droneHumGain=g}catch(_){}
+  }
+  function updateSoundToggle(){
+    const b=document.getElementById('soundToggle'),l=document.getElementById('soundLabel');if(!b||!l)return;l.textContent=tr(soundEnabled?'SOUND ON':'SOUND OFF');b.setAttribute('aria-pressed',soundEnabled?'true':'false');b.setAttribute('aria-label',tr(soundEnabled?'SOUND ON':'SOUND OFF'));
+  }
+  function toggleSound(){
+    soundEnabled=!soundEnabled;try{window.localStorage.setItem(SOUND_KEY,soundEnabled?'on':'off')}catch(_){}
+    if(soundEnabled){getAudioContext();playSound('ui');syncDroneHum()}else stopDroneHum();updateSoundToggle();
   }
 
   function updateHud() {
@@ -1081,6 +1125,7 @@
     }
   }
   function startOrRestart() {
+    getAudioContext(); playSound('start');
     document.body.classList.remove('cover-active');
     reset();
     recordGlobalPlay();
@@ -1107,13 +1152,14 @@
     if (event.key === 'Escape' && !updateLog.hidden) hideUpdateLog();
   });
   document.getElementById('restart').addEventListener('click', startOrRestart);
+  document.getElementById('soundToggle').addEventListener('click', toggleSound);
   function syncModePicker() {
     document.querySelectorAll('[data-mode]').forEach(button => {
       const selected = button.dataset.mode === activeMode;
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = tr(settings().description);
-    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.13 · ${tr(settings().label)} ${tr('MODE')}`;
+    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.16 · ${tr(settings().label)} ${tr('MODE')}`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
