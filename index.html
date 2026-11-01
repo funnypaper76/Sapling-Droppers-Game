@@ -412,7 +412,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.9 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.10 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option></select>
@@ -465,8 +465,9 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.9</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.10</div>
       <div class="update-log-list">
+        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_27">ENTISH REPORT EXPANDED TO FIVE PAGES</div><p data-i18n-key="LOG_DESC_27">Split the final Entish report into five pages so the project figures, explanations, and conclusions remain easy to read.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_26">ENTISH FIELD REPORT READABILITY</div><p data-i18n-key="LOG_DESC_26">Redesigned the final Entish report pages with fitted, wrapped text so every project figure stays readable.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_25">ENTISH SPEECH & UPDATE LOG REPAIR</div><p data-i18n-key="LOG_DESC_25">Expanded Entish into longer speech, repaired translations in all ten languages, and restored update-log formatting.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_24">OLD ENTISH SPEECH STYLE</div><p data-i18n-key="LOG_DESC_24">Added an original, slow and ancient woodland-guardian speech style.</p></article>
@@ -681,6 +682,14 @@
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.zh,{"LOG_TITLE_26":"优化树人风格报告的可读性","LOG_DESC_26":"重新设计了结尾的树人风格报告页面，并自动换行，确保所有数据清晰可读。"});
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.ko,{"LOG_TITLE_26":"엔트 말투 보고서 가독성 개선","LOG_DESC_26":"마지막 엔트풍 보고서 페이지를 다시 구성하고 자동 줄바꿈을 적용해 모든 데이터를 읽기 쉽게 만들었습니다."});
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.nl,{"LOG_TITLE_26":"ENTISCH RAPPORT BETER LEESBAAR","LOG_DESC_26":"Het Entische eindrapport gebruikt nu opnieuw ingedeelde pagina's en tekstterugloop zodat alle gegevens leesbaar blijven."});
+
+  Object.assign(LANGUAGE_TEXT,{"LOG_TITLE_27":["INFORME ENTISH DIVIDIDO EN CINCO PÁGINAS","RAPPORT ENTISH RÉPARTI SUR CINQ PAGES","ENTISCHER BERICHT AUF FÜNF SEITEN"],"LOG_DESC_27":["Se dividió el informe final de Entish en cinco páginas para que cada cifra, explicación y conclusión pueda leerse con claridad.","Le rapport final en style Entish a été réparti sur cinq pages afin que chaque chiffre, explication et conclusion reste lisible.","Der abschließende Entisch-Bericht wurde auf fünf Seiten verteilt, damit alle Zahlen, Erklärungen und Schlussfolgerungen gut lesbar bleiben."]});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.pt,{"LOG_TITLE_27":"RELATÓRIO ENTISH EM CINCO PÁGINAS","LOG_DESC_27":"O relatório final em estilo Entish foi dividido em cinco páginas para que todos os números, explicações e conclusões possam ser lidos com clareza."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.it,{"LOG_TITLE_27":"RAPPORTO ENTISH IN CINQUE PAGINE","LOG_DESC_27":"Il rapporto finale in stile Entish è stato diviso in cinque pagine per rendere leggibili tutti i dati, le spiegazioni e le conclusioni."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ja,{"LOG_TITLE_27":"エンティッシュの報告書を5ページに分割","LOG_DESC_27":"最後のエンティッシュ風レポートを5ページに分け、数値や説明、結論を読みやすくしました。"});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.zh,{"LOG_TITLE_27":"树人风格报告拆分为五页","LOG_DESC_27":"将结尾的树人风格报告拆分为五页，让所有数据、解释和结论都清晰易读。"});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ko,{"LOG_TITLE_27":"엔트풍 보고서를 5페이지로 분할","LOG_DESC_27":"마지막 엔트풍 보고서를 다섯 페이지로 나누어 모든 수치와 설명, 결론을 읽기 쉽게 만들었습니다."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.nl,{"LOG_TITLE_27":"ENTISCH RAPPORT VERDEELD OVER VIJF PAGINA'S","LOG_DESC_27":"Het Entische eindrapport is over vijf pagina's verdeeld zodat alle cijfers, uitleg en conclusies goed leesbaar zijn."});
   const LANG_NAMES={en:"English",es:"Español",fr:"Français",de:"Deutsch",pt:"Português",it:"Italiano",ja:"日本語",zh:"中文（简体）",ko:"한국어",nl:"Nederlands",old:"Old English",british:"Extremely British",pirate:"Pirate Speak",entish:"Old Entish"};
   const LANG_KEY="sapling-droppers-language-v1";
   function detectLanguage(){try{const saved=localStorage.getItem(LANG_KEY);if(saved&&LANG_NAMES[saved])return saved}catch(_){}const code=(navigator.language||"en").slice(0,2).toLowerCase();return LANG_NAMES[code]?code:"en"}
@@ -1004,7 +1013,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = tr(settings().description);
-    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.9 · ${tr(settings().label)} ${tr('MODE')}`;
+    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.10 · ${tr(settings().label)} ${tr('MODE')}`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
@@ -1621,26 +1630,37 @@
   function drawEntishDialogue(phoneLayout,pageIndex) {
     const pages=[
       {
-        title:"THE FIRST ACCOUNT: THE SEEDBOMB TRIAL",
+        title:"FIRST ACCOUNT: THE SEEDBOMB TRIAL",
         lines:[
-          "Come now, little one, and let the record be heard: all eight seedbomb sites were reached, yet only one of those places grew into a tree.",
-          "Remember, the scene you watched was a symbol of the trial, not a literal account of eight separate throws."
+          "Come now, little one, let the record be heard with care: all eight seedbomb sites were reached, yet only one of those places grew into a tree.",
+          "The scene thou witnessed was a symbol of the trial, not a literal account of eight separate throws, so remember its meaning as well as its numbers."
         ]
       },
       {
-        title:"THE SECOND ACCOUNT: THE PROJECT COMPARISON",
+        title:"SECOND ACCOUNT: SEEDBOMB SEEDS",
         lines:[
-          "Of the seeds carried in seedbombs, this project uses an example in which about 1% establish; this is an illustrative project figure, not a promise for every forest.",
+          "Of the seeds carried by seedbombs, this project uses an example in which about 1% establish, after the long journey from seed to rooted plant.",
+          "This is but an illustrative project figure, not a promise that every forest, hill, or clearing shall answer in the same way."
+        ]
+      },
+      {
+        title:"THIRD ACCOUNT: PLANTED SAPLINGS",
+        lines:[
           "Where young saplings have been raised in a nursery and then planted, about 70–80% surviving their first year is the comparison used here.",
-          "These figures are examples to help explain the difference, not universal guarantees, and the roots of every place tell their own story."
+          "These young trees begin larger and stronger, having already spent time growing where they can be tended with patience."
         ]
       },
       {
-        title:"THE THIRD ACCOUNT: WHY RESULTS DIFFER",
+        title:"FOURTH ACCOUNT: PREPARED SITES",
         lines:[
-          "Nursery-grown saplings begin larger and stronger, having already spent time growing in a place where they can be cared for.",
-          "They may then be planted into prepared sites, where people can choose suitable ground and tend them as they settle.",
-          "Yet no two forests are alike: the tree species, the soil beneath them, the weather above them, and the care afterward all matter.",
+          "They may then be planted into prepared sites, where people can choose suitable ground and tend them as they settle into the earth.",
+          "Still, no two forests are alike, and no two pieces of ground tell precisely the same tale, however much we might wish otherwise."
+        ]
+      },
+      {
+        title:"FIFTH ACCOUNT: THE MANY FACTORS",
+        lines:[
+          "The tree species, the soil beneath them, the weather above them, and the care given afterward all matter, each in its own slow fashion.",
           "So real survival rates change from one project and one place to another, and careful local records must always be read with care."
         ]
       }
@@ -1680,7 +1700,7 @@
     let bodySize=phoneLayout?10.5:13;
     let layout=[];
     const makeLayout=()=>{
-      const lineH=Math.round(bodySize*scale*1.12);
+      const lineH=Math.round(bodySize*scale*1.5);
       ctx.font='bold '+Math.round(bodySize*scale)+'px monospace';
       const paragraphs=page.lines.map(paragraph=>{
         const lines=[];let line="";
