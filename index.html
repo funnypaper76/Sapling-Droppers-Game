@@ -390,21 +390,59 @@
   }
 
 
+  body.entish-mode {
+    align-items:flex-start;
+  }
+  body.entish-mode .cabinet {
+    max-height:calc(100vh - 36px);
+    max-height:calc(100dvh - 36px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    scrollbar-gutter:stable;
+    padding-right:6px;
+  }
   body.entish-mode .topline { align-items:flex-start; flex-wrap:wrap; }
-  body.entish-mode .brand { white-space:normal; }
+  body.entish-mode .brand,
   body.entish-mode .tag,
   body.entish-mode .version,
+  body.entish-mode .mode-picker,
   body.entish-mode .mode-description,
   body.entish-mode .global-plays,
-  body.entish-mode .personal-best-display {
-    white-space:normal; overflow-wrap:anywhere; line-height:1.4;
+  body.entish-mode .personal-best-display,
+  body.entish-mode .cover-copy,
+  body.entish-mode .cover-kicker,
+  body.entish-mode .cover-copy p,
+  body.entish-mode .cover-footnote,
+  body.entish-mode .desktop-help,
+  body.entish-mode .update-log-kicker,
+  body.entish-mode .update-log-heading h2,
+  body.entish-mode .update-entry-title,
+  body.entish-mode .update-entry p,
+  body.entish-mode .update-log-footer,
+  body.entish-mode .touch-caption {
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    line-height:1.35;
   }
-  body.entish-mode .mode-picker { align-items:flex-start; }
+  body.entish-mode .mode-picker {
+    align-items:stretch;
+    min-width:0;
+  }
+  body.entish-mode .mode-button {
+    flex:1 1 28%;
+    min-width:0;
+    max-width:100%;
+  }
   body.entish-mode .play-button,
   body.entish-mode .update-log-button,
   body.entish-mode .mode-button,
   body.entish-mode .actions button {
-    white-space:normal; overflow-wrap:anywhere; line-height:1.35;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.3;
+    max-width:100%;
   }
 </style>
 </head>
@@ -412,7 +450,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.12 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.13 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option></select>
@@ -465,8 +503,9 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.12</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.13</div>
       <div class="update-log-list">
+        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_29">FULL-LENGTH ENTISH PARAGRAPHS</div><p data-i18n-key="LOG_DESC_29">Restored varied, long Entish paragraphs and contained scrolling within the game cabinet so the website does not grow endlessly.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_28">ENTISH SITE LAYOUT FIX</div><p data-i18n-key="LOG_DESC_28">Shortened website labels and reserved long Entish speech for dialogue; the final report remains three readable pages.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_25">ENTISH REPORT RETURNED TO THREE PAGES</div><p data-i18n-key="LOG_DESC_25">Restored the earlier three-page Entish field report while keeping the long, winding Entish speech style.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_25">ENTISH SPEECH & UPDATE LOG REPAIR</div><p data-i18n-key="LOG_DESC_25">Expanded Entish into longer speech, repaired translations in all ten languages, and restored update-log formatting.</p></article>
@@ -622,52 +661,24 @@
     let spoken=special[original.toUpperCase()];
     if(!spoken){
       const subject=original.replace(/[.!?]+$/,"").toLowerCase();
-      spoken="Now then ... little one ... let us speak, slowly and with care, of "+subject+", for this is a matter that the roots have considered through many long seasons, and the oldest trees have never found a reason to hurry ... no, not even a little.";
+      let seed=0;
+      for(let i=0;i<subject.length;i++)seed=(seed+subject.charCodeAt(i)*(i+3))%9973;
+      const stories=[
+        "Now then, little one, draw near and listen, for we have come to speak of "+subject+". It is a small-looking matter, perhaps, but small matters have roots that travel a very long way beneath the earth, and we shall not be hurried while we follow them.",
+        "Well, well, well ... where were we? Ah yes, "+subject+". We remember when such things were young, though that was many seasons ago, and the leaves have changed their minds several times since. Let us consider it properly, with a pause for the wind and another for the squirrels.",
+        "Hoom ... now this is a tale about "+subject+", and it is not a tale to be rushed. The roots must be followed, the branches must be counted, and somewhere along the way we may discover that we have been talking for quite a while. That is usually how the important things are done.",
+        "Come closer, young sprout, and let the old wood explain "+subject+". The matter has rested beneath rain, snow, sunshine, and the occasional very rude gust of wind. After all that waiting, it deserves more than a hurried handful of words.",
+        "By the rings of the oldest tree, "+subject+" is a matter worth discussing. We shall begin at the beginning, which was some time ago, and proceed through the middle at a thoughtful pace, arriving at the end when the end is good and ready.",
+        "Now ... let us take the long path through "+subject+". There are turns in this story, and pauses, and perhaps a small digression about moss. Do not worry if the telling grows lengthy; the forest has never considered brevity to be one of its greatest virtues."
+      ];
+      spoken=stories[seed%stories.length];
     }
     if(original&&original===original.toLowerCase())return spoken.toLowerCase();
     if(original&&original===original.toUpperCase())return spoken.toUpperCase();
     return spoken;
   }
-  function speakEntishCompact(value){
-    const original=String(value);
-    const exact={
-      "PLAY":"LET THE GROWING BEGIN",
-      "UPDATE LOG":"THE OLD WOOD'S RECORD",
-      "THANKS FOR PLAYING":"THE OLD WOOD REMEMBERS THY VISIT",
-      "RESTART MISSION":"BEGIN THE LONG WORK ANEW",
-      "MISSION FAILED":"THE FOREST MUST WAIT",
-      "GAME OVER":"THE DAY'S WORK IS DONE",
-      "FOREST RESTORED":"THE GREENWOOD RISES AGAIN",
-      "NORMAL":"A GENTLE BREEZE",
-      "CHALLENGE":"RESTLESS WINDS",
-      "GALE":"THE GREAT WIND",
-      "FIELD REPORT":"THE WOODLAND RECORD",
-      "BIO BLAZERS DEVELOPMENT NOTES":"NOTES FROM THE OLD WOOD",
-      "WIND PROFILE":"THE MOOD OF THE BREEZE",
-      "GLOBAL PLAYS":"JOURNEYS COUNTED",
-      "PERSONAL BEST":"THY FINEST GROWING",
-      "DOWNLOAD TO FILES":"KEEP A COPY FOR THE LONG YEARS",
-      "TOUCH CONTROLS":"GUIDANCE FOR LITTLE HANDS",
-      "CURRENT BUILD":"THE PRESENT SEASON"
-    };
-    if(exact[original.toUpperCase()]){
-      const replacement=exact[original.toUpperCase()];
-      return original===original.toLowerCase()?replacement.toLowerCase():original===original.toUpperCase()?replacement.toUpperCase():replacement;
-    }
-    return original
-      .replace(/\\bFOREST\\b/gi,"greenwood")
-      .replace(/\\bFORESTS\\b/gi,"greenwoods")
-      .replace(/\\bSAPLINGS?\\b/gi,"young trees")
-      .replace(/\\bTREES?\\b/gi,"trees")
-      .replace(/\\bWIND\\b/gi,"breeze")
-      .replace(/\\bMISSION\\b/gi,"long work")
-      .replace(/\\bPLANT\\b/gi,"set roots")
-      .replace(/\\bPLANTED\\b/gi,"rooted")
-      .replace(/\\bSCORE\\b/gi,"growth tally")
-      .replace(/\\bSELECT\\b/gi,"choose with care");
-  }
   function stylizeEnglish(value,style){
-    if(style==="entish")return speakEntishCompact(value);
+    if(style==="entish")return speakEntish(value);
     if(!["old","british","pirate"].includes(style))return value;
     const rules={
       old:[
@@ -728,6 +739,14 @@
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.zh,{"LOG_TITLE_28":"修复树人风格与页面布局","LOG_DESC_28":"缩短了网站界面文字，将冗长表达限制在对话中；结尾报告仍为易读的三页。"});
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.ko,{"LOG_TITLE_28":"엔트 말투 및 페이지 레이아웃 수정","LOG_DESC_28":"웹사이트의 라벨을 짧게 하고 긴 말투는 대화에만 적용했습니다. 마지막 보고서는 읽기 쉬운 3페이지로 유지됩니다."});
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.nl,{"LOG_TITLE_28":"ENTISCHE STIJL EN PAGINA-INDELING GECORRIGEERD","LOG_DESC_28":"De websitelabels zijn korter gemaakt en de lange spreekstijl is beperkt tot dialogen; het eindrapport blijft drie leesbare pagina's."});
+
+  Object.assign(LANGUAGE_TEXT,{"LOG_TITLE_29":["PÁRRAFOS ENTISH COMPLETOS","PARAGRAPHES ENTISH COMPLETS","VOLLSTÄNDIGE ENTISCHE ABSÄTZE"],"LOG_DESC_29":["Se restauró el estilo Entish extenso con frases variadas y se limitó el desplazamiento al panel del juego para evitar que la página se alargue indefinidamente.","Le style Entish en longs paragraphes variés a été rétabli, et le défilement est contenu dans le panneau du jeu afin d’éviter une page interminable.","Der ausführliche Entisch-Stil mit abwechslungsreichen Absätzen wurde wiederhergestellt; der Bildlauf bleibt im Spielbereich, damit die Webseite nicht endlos wächst."]});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.pt,{"LOG_TITLE_29":"PARÁGRAFOS ENTISH COMPLETOS","LOG_DESC_29":"O estilo Entish longo voltou com parágrafos variados, e a rolagem foi limitada ao painel do jogo para evitar que a página cresça sem parar."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.it,{"LOG_TITLE_29":"PARAGRAFI ENTISH COMPLETI","LOG_DESC_29":"È stato ripristinato lo stile Entish con paragrafi lunghi e vari, mentre lo scorrimento è stato contenuto nel pannello del gioco per evitare una pagina infinita."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ja,{"LOG_TITLE_29":"エンティッシュの長文段落を復活","LOG_DESC_29":"表現に変化をつけた長いエンティッシュ風の段落を復活させ、ページが延々と伸びないようスクロールをゲーム領域内に収めました。"});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.zh,{"LOG_TITLE_29":"恢复完整的树人风格长段落","LOG_DESC_29":"恢复了多种变化的树人风格长段落，并将滚动限制在游戏区域内，避免网页无限变长。"});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.ko,{"LOG_TITLE_29":"엔트풍 긴 문단 복원","LOG_DESC_29":"다양한 표현의 긴 엔트풍 문단을 복원하고 페이지가 끝없이 길어지지 않도록 게임 영역 안에서 스크롤되게 했습니다."});
+  Object.assign(ADDITIONAL_LANGUAGE_TEXT.nl,{"LOG_TITLE_29":"VOLLEDIGE ENTISCHE ALINEA'S","LOG_DESC_29":"De lange Entische stijl met afwisselende alinea's is teruggezet en het scrollen blijft binnen het spelvenster, zodat de website niet eindeloos lang wordt."});
   const LANG_NAMES={en:"English",es:"Español",fr:"Français",de:"Deutsch",pt:"Português",it:"Italiano",ja:"日本語",zh:"中文（简体）",ko:"한국어",nl:"Nederlands",old:"Old English",british:"Extremely British",pirate:"Pirate Speak",entish:"Old Entish"};
   const LANG_KEY="sapling-droppers-language-v1";
   function detectLanguage(){try{const saved=localStorage.getItem(LANG_KEY);if(saved&&LANG_NAMES[saved])return saved}catch(_){}const code=(navigator.language||"en").slice(0,2).toLowerCase();return LANG_NAMES[code]?code:"en"}
@@ -1051,7 +1070,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = tr(settings().description);
-    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.12 · ${tr(settings().label)} ${tr('MODE')}`;
+    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.13 · ${tr(settings().label)} ${tr('MODE')}`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
