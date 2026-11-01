@@ -871,6 +871,7 @@
   let state = 'title', phase = 'soil', drone, pods, saplings, holes, particles;
   let level = 1, seedbombAttempts = 0, seedbombHits = [], seedbombTree = null, dialoguePage = 0;
   let frame = 0, message = '', messageTimer = 0, cooldown = 0, score = 0, victoryTimer = 0;
+  let woodlandEvents = [], woodlandBonus = null, nextWoodlandEventFrame = 0, nextBonusFrame = 0;
   const SOUND_KEY = 'sapling-droppers-sound-v1';
   function readSoundEnabled(){try{const stored=window.localStorage.getItem(SOUND_KEY);return stored===null?true:stored!=='off'}catch(_){return true}}
   let soundEnabled=readSoundEnabled(), audioContext=null, droneHumOscillator=null, droneHumGain=null, lastWindSoundFrame=-9999;
@@ -963,6 +964,7 @@
 
   function reset() {
     generateWorld();
+    woodlandEvents=[];woodlandBonus=null;nextWoodlandEventFrame=Math.round(rand(180,300));nextBonusFrame=Math.round(rand(420,600));
     level = 1; phase = 'soil';
     seedbombAttempts = 0; seedbombHits = []; seedbombTree = null; dialoguePage = 0;
     victoryTimer = 0;
@@ -1050,6 +1052,7 @@
     level = 2;
     phase = 'seedbomb';
     generateWorld();
+    woodlandEvents=[];woodlandBonus=null;nextWoodlandEventFrame=frame+Math.round(rand(180,300));nextBonusFrame=frame+Math.round(rand(420,600));
     drone = {x:145,y:180,vx:0,vy:0,prop:0};
     pods = []; saplings = []; holes = []; particles = [];
     seedbombAttempts = 0; seedbombHits = []; seedbombTree = null; dialoguePage = 0;
@@ -1281,14 +1284,14 @@
       pods.push(makeWindborne('soil',drone.x,drone.y+21,.55));
       puff(drone.x,drone.y+26,'#d0a35e',4);
       message = tr('SOIL POD {n}/{max} RELEASED',{n:soilAttempts,max:settings().maxAttempts});
-      messageTimer = 45;
+      messageTimer = 45; playSound('drop');
     } else if (phase === 'plant') {
       if (plantAttempts >= settings().maxAttempts) { message = tr('NO SAPLINGS LEFT'); messageTimer = 65; return; }
       plantAttempts++;
       saplings.push({...makeWindborne('sapling',drone.x,drone.y+20,1.1),landed:false});
       puff(drone.x,drone.y+22,'#b4d779',5);
       message = tr('SAPLING DROP {n}/{max}',{n:plantAttempts,max:settings().maxAttempts});
-      messageTimer = 45;
+      messageTimer = 45; playSound('drop');
     } else if (phase === 'seedbomb') {
       if (seedbombAttempts >= settings().maxAttempts) { message = tr('NO SEEDBOMBS LEFT'); messageTimer = 65; return; }
       seedbombAttempts++;
@@ -1297,7 +1300,7 @@
       pods.push(bomb);
       airPuff(drone.x,drone.y+22);
       message = tr('SEEDBOMB {n}/{max} RELEASED',{n:seedbombAttempts,max:settings().maxAttempts});
-      messageTimer = 45;
+      messageTimer = 45; playSound('drop');
     }
     updateHud();
   }
@@ -1319,6 +1322,28 @@
     }
   }
 
+  function spawnWoodlandEvent(){
+    const kind=Math.floor(rand(0,3));
+    if(kind===0){const direction=Math.random()<.5?1:-1;for(let i=0;i<2;i++)woodlandEvents.push({kind:'bird',x:direction===1?-18-i*17:W+18+i*17,y:rand(74,150)+i*8,vx:direction*rand(1.45,2.15),baseY:0,phase:rand(0,6),life:250,color:'#304d3d'});playSound('bird')}
+    else if(kind===1){const palette=['#e5a6c8','#f0d17a','#a9c7ed'];for(let i=0;i<2;i++)woodlandEvents.push({kind:'butterfly',x:rand(85,W-85),y:rand(125,290),baseY:0,vx:rand(-.55,.55),phase:rand(0,6),life:210,color:palette[i]})}
+    else{const palette=['#d49a52','#c6bd63','#9da95a','#bd8050'];for(let i=0;i<4;i++)woodlandEvents.push({kind:'leaf',x:rand(30,W-30),y:rand(135,330),vx:rand(-.65,.65),vy:rand(.12,.45),phase:rand(0,6),life:190,color:palette[i]})}
+  }
+  function updateWoodlandEvents(){
+    if(frame>=nextWoodlandEventFrame){spawnWoodlandEvent();nextWoodlandEventFrame=frame+Math.round(rand(240,390))}
+    woodlandEvents.forEach(e=>{e.x+=e.vx+(e.kind==='leaf'?wind*.22:0);if(e.kind==='leaf')e.y+=e.vy+Math.sin(frame*.08+e.phase)*.28;else{if(!e.baseY)e.baseY=e.y;e.y=e.baseY+Math.sin(frame*.065+e.phase)*(e.kind==='bird'?2:4)}e.life--});
+    woodlandEvents=woodlandEvents.filter(e=>e.life>0&&e.x>-40&&e.x<W+40);
+    if(!woodlandBonus&&frame>=nextBonusFrame){const x=clamp(drone.x+rand(-260,260),100,W-100);const baseY=clamp(drone.y+rand(-85,85),105,Math.min(320,terrainAt(x)-85));woodlandBonus={x,y:baseY,baseY,phase:rand(0,6),life:390};nextBonusFrame=frame+Math.round(rand(650,880))}
+    if(woodlandBonus){woodlandBonus.life--;woodlandBonus.y=woodlandBonus.baseY+Math.sin(frame*.075+woodlandBonus.phase)*5;if(Math.hypot(drone.x-woodlandBonus.x,drone.y-woodlandBonus.y)<25){const earned=Math.round(125*scoreMultiplier());score+=earned;timeLeft=Math.min(settings().seconds*60,timeLeft+300);message=tr('FIREFLY BONUS +{earned} · +5s',{earned});messageTimer=100;woodlandBonus=null;playSound('bonus');updateHud()}else if(woodlandBonus.life<=0)woodlandBonus=null}
+  }
+  function drawWoodlandEvents(){
+    woodlandEvents.forEach(e=>{
+      if(e.kind==='leaf'){ctx.save();ctx.translate(Math.round(e.x),Math.round(e.y));ctx.rotate(Math.sin(frame*.04+e.phase)*.9);ctx.fillStyle=e.color;ctx.fillRect(-4,-2,8,4);ctx.fillRect(-1,-4,2,8);ctx.restore()}
+      else if(e.kind==='butterfly'){const flap=2+Math.abs(Math.sin(frame*.28+e.phase))*3;rect(e.x-6,e.y-flap,5,4,e.color);rect(e.x+1,e.y-flap,5,4,e.color);rect(e.x-5,e.y+1,4,3,e.color);rect(e.x+1,e.y+1,4,3,e.color);rect(e.x-1,e.y-2,2,7,'#3b4d35')}
+      else{rect(e.x-7,e.y-1,5,2,e.color);rect(e.x-3,e.y-3,5,2,e.color);rect(e.x+1,e.y-1,5,2,e.color)}
+    });
+    if(woodlandBonus){const x=woodlandBonus.x,y=woodlandBonus.y;ctx.save();ctx.globalAlpha=.2;rect(x-12,y-12,24,24,'#fff2a1');ctx.globalAlpha=1;rect(x-2,y-8,4,16,'#fff0a0');rect(x-8,y-2,16,4,'#fff0a0');rect(x-4,y-4,8,8,'#e5a943');rect(x-2,y-2,4,4,'#fff7c4');rect(x-8,y-11,3,3,'#fff7c4');rect(x+6,y+7,3,3,'#fff7c4');ctx.restore()}
+  }
+
   function gameOver(reason) {
     savePersonalBest();
     state = 'lost'; message = reason; messageTimer = 999999; updateHud(); keys.clear();
@@ -1326,6 +1351,7 @@
 
   function registerMiss(reason) {
     misses++;
+    playSound('miss');
     const penalty = Math.round(35 * scoreMultiplier());
     score = Math.max(0,score-penalty);
     if (misses >= MAX_MISSES) {
@@ -1353,6 +1379,7 @@
       gustTimer = Math.round(rand(cfg.gustDurationMin,cfg.gustDurationMax));
       gust = rand(-cfg.gustMax,cfg.gustMax);
       gust = Math.sign(gust || 1) * Math.max(cfg.gustMin,Math.abs(gust));
+      if(frame-lastWindSoundFrame>240){playSound('wind');lastWindSoundFrame=frame}
     }
     if (gustTimer > 0) {
       gustTimer--;
@@ -1368,6 +1395,7 @@
     frame++;
     if (cooldown > 0) cooldown--;
     if (messageTimer > 0) messageTimer--;
+    syncDroneHum();
     if (state === 'celebrating') {
       // Level 1: all eight planted saplings grow into mature pixel trees.
       victoryTimer++;
@@ -1400,6 +1428,7 @@
     drone.x = clamp(drone.x + drone.vx + wind*settings().droneWindEffect, 38, W-38);
     drone.y = clamp(drone.y + drone.vy, 76, terrainAt(drone.x)-95);
     drone.prop += (Math.abs(drone.vx)+Math.abs(drone.vy) > 0 ? .45 : .22);
+    updateWoodlandEvents();
 
     pods.forEach(p => {
       if (state !== 'playing' || p.dead) return;
@@ -1431,7 +1460,7 @@
             holes.push({x:target.x,y:target.y,targetIndex:target.index,planted:false,born:frame});
             const earned = awardScore(15,20,landingOffset,settings().soilTolerance);
             message = tr('SITE PREPARED {n}/{total} · +{earned}',{n:holes.length,total:TOTAL,earned}); messageTimer = 58;
-            puff(target.x,target.y-5,'#d7b36e',10);
+            puff(target.x,target.y-5,'#d7b36e',10); playSound('plant');
             if (holes.length === TOTAL) {
               phase = 'plant'; message = tr('ALL SITES READY! DROP SAPLINGS INTO THE HOLES'); messageTimer = 220;
             }
@@ -1446,7 +1475,7 @@
             hole.planted = true;
             const earned = awardScore(80,80,landingOffset,settings().plantTolerance);
             message = tr('SAPLING PLANTED +{earned} · {n}/{total}',{earned,n:plantedCount(),total:TOTAL}); messageTimer = 70;
-            puff(hole.x,hole.y-14,'#a9d66c',13);
+            puff(hole.x,hole.y-14,'#a9d66c',13); playSound('plant');
           } else {
             puff(p.x,impactGround-5,'#7aa65b',5);
             if (registerMiss(tr('SAPLING MISSED! COMPENSATE FOR WIND'))) return;
@@ -1460,7 +1489,7 @@
             seedbombHits.push({x:target.x,y:target.y,targetIndex:target.index});
             const earned = awardScore(30,30,landingOffset,tolerance);
             message = tr('SEEDBOMB PLACED +{earned} · {n}/{total}',{earned,n:seedbombHits.length,total:TOTAL}); messageTimer = 60;
-            puff(target.x,target.y-5,'#b6a16a',8);
+            puff(target.x,target.y-5,'#b6a16a',8); playSound('plant');
           } else {
             puff(p.x,impactGround-5,'#9c8050',5);
             if (registerMiss(tr('SEEDBOMB MISSED · ADJUST FOR WIND'))) return;
@@ -1499,14 +1528,14 @@
     }
     if (phase === 'plant' && plantedCount() === TOTAL && saplings.length === 0 && pods.filter(p=>p.kind==='sapling').length === 0) {
       const stageBonus = awardStageBonus();
-      state = 'celebrating'; victoryTimer = 0; message = tr('THE FOREST IS GROWING! STAGE BONUS +{bonus}',{bonus:stageBonus}); messageTimer = 999999; updateHud();
+      state = 'celebrating'; victoryTimer = 0; playSound('victory'); message = tr('THE FOREST IS GROWING! STAGE BONUS +{bonus}',{bonus:stageBonus}); messageTimer = 999999; updateHud();
     }
     if (phase === 'seedbomb' && seedbombAttempts >= settings().maxAttempts && pods.filter(p=>p.kind==='seedbomb').length === 0 && seedbombHits.length < TOTAL) {
       gameOver(tr('SEEDBOMB SUPPLY EXHAUSTED')); return;
     }
     if (phase === 'seedbomb' && seedbombHits.length === TOTAL && pods.filter(p=>p.kind==='seedbomb').length === 0) {
       const stageBonus = awardStageBonus();
-      state = 'seedbombCelebrating'; victoryTimer = 0;
+      state = 'seedbombCelebrating'; victoryTimer = 0; playSound('victory');
       seedbombTree = {...seedbombHits[Math.floor(Math.random()*seedbombHits.length)]};
       message = tr('ONLY ONE SEEDBOMB SITE WILL ESTABLISH · BONUS +{bonus}',{bonus:stageBonus}); messageTimer = 999999; updateHud();
     }
@@ -1894,6 +1923,7 @@
 
   function render() {
     drawBackground();
+    drawWoodlandEvents();
     if (state==='playing' && (phase==='soil' || phase==='seedbomb')) drawTargets();
     holes.forEach(drawHole);
     if (level === 2) {
