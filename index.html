@@ -1346,6 +1346,7 @@
   }
 
   function gameOver(reason) {
+    playSound('gameOver');
     savePersonalBest();
     state = 'lost'; message = reason; messageTimer = 999999; updateHud(); keys.clear();
   }
