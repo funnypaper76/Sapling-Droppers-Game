@@ -450,10 +450,10 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.13 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.14 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
-    <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option></select>
+    <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option><option value="trailer">Overly Dramatic (Movie Trailer)</option></select>
     <span class="mode-label" id="windProfileLabel">WIND PROFILE</span>
     <button class="mode-button" type="button" data-mode="normal" aria-pressed="true">NORMAL</button>
     <button class="mode-button" type="button" data-mode="challenge" aria-pressed="false">CHALLENGE</button>
@@ -503,8 +503,9 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.13</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.14</div>
       <div class="update-log-list">
+        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_30">ONE DRONE. ONE FOREST. MAXIMUM DRAMA.</div><p data-i18n-key="LOG_DESC_30">Added Overly Dramatic Movie Trailer mode, with epic menu labels, heroic saplings, an unstoppable wind, and a narrator who treats every seed like destiny.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_29">FULL-LENGTH ENTISH PARAGRAPHS</div><p data-i18n-key="LOG_DESC_29">Restored varied, long Entish paragraphs and contained scrolling within the game cabinet so the website does not grow endlessly.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_28">ENTISH SITE LAYOUT FIX</div><p data-i18n-key="LOG_DESC_28">Shortened website labels and reserved long Entish speech for dialogue; the final report remains three readable pages.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_25">ENTISH REPORT RETURNED TO THREE PAGES</div><p data-i18n-key="LOG_DESC_25">Restored the earlier three-page Entish field report while keeping the long, winding Entish speech style.</p></article>
@@ -679,6 +680,40 @@
   }
   function stylizeEnglish(value,style){
     if(style==="entish")return speakEntish(value);
+    if(style==="trailer"){
+      const dramaticPhrases=[
+        ["THANKS FOR PLAYING","YOU HAVE WITNESSED THE LEGEND. THE TREES THANK YOU."],
+        ["RESTART MISSION","ROLL THE DRONE. RUN IT AGAIN."],
+        ["MISSION FAILED","THE WIND HAS WON... FOR NOW."],
+        ["GAME OVER","THE END... OR IS IT?"],
+        ["FOREST RESTORED","A FOREST RISES. A LEGEND BEGINS."],
+        ["PERSONAL BEST","YOUR LEGENDARY HIGH SCORE"],
+        ["GLOBAL PLAYS","THE WORLD HAS JOINED THE QUEST"],
+        ["UPDATE LOG","PREVIOUSLY, IN THE FOREST..."],
+        ["FIELD REPORT","THE EPIC FIELD DOSSIER"],
+        ["PLANT A FOREST. BEAT THE WIND.","ONE DRONE. EIGHT SAPLINGS. ONE EPIC DESTINY."],
+        ["A PIXEL REFORESTATION ARCADE GAME","A PIXEL REFORESTATION EPIC, COMING TO A PLANET NEAR YOU"],
+        ["PLAY","UNLEASH THE EPIC"],
+        ["NORMAL","THE CALM BEFORE"],
+        ["CHALLENGE","THE WIND AWAKENS"],
+        ["GALE","THE FINAL STORM"]
+      ];
+      const dramaticWords=[
+        ["FOREST","LEGENDARY FOREST"],["WIND","UNSTOPPABLE WIND"],
+        ["SAPLINGS","HEROIC SAPLINGS"],["SAPLING","HEROIC SAPLING"],
+        ["MISSION","EPIC MISSION"],["SCORE","LEGENDARY SCORE"],
+        ["TIME","COUNTDOWN"],["LEVEL","CHAPTER"],["DRONE","DESTINY'S DRONE"],
+        ["SEEDBOMB","SEED OF DESTINY"]
+      ];
+      for(const [from,to] of dramaticPhrases){
+        value=value.replace(new RegExp(from.split(".").join("\\."),"gi"),match=>keepSpeechCase(match,to));
+      }
+      for(const [from,to] of dramaticWords){
+        value=value.replace(new RegExp("\\b"+from+"\\b","gi"),match=>keepSpeechCase(match,to));
+      }
+      if(/[A-Za-z]/.test(value)&&value.length<=52&&!/[.!?…]$/.test(value))value+="!!!";
+      return value;
+    }
     if(!["old","british","pirate"].includes(style))return value;
     const rules={
       old:[
@@ -747,13 +782,13 @@
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.zh,{"LOG_TITLE_29":"恢复完整的树人风格长段落","LOG_DESC_29":"恢复了多种变化的树人风格长段落，并将滚动限制在游戏区域内，避免网页无限变长。"});
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.ko,{"LOG_TITLE_29":"엔트풍 긴 문단 복원","LOG_DESC_29":"다양한 표현의 긴 엔트풍 문단을 복원하고 페이지가 끝없이 길어지지 않도록 게임 영역 안에서 스크롤되게 했습니다."});
   Object.assign(ADDITIONAL_LANGUAGE_TEXT.nl,{"LOG_TITLE_29":"VOLLEDIGE ENTISCHE ALINEA'S","LOG_DESC_29":"De lange Entische stijl met afwisselende alinea's is teruggezet en het scrollen blijft binnen het spelvenster, zodat de website niet eindeloos lang wordt."});
-  const LANG_NAMES={en:"English",es:"Español",fr:"Français",de:"Deutsch",pt:"Português",it:"Italiano",ja:"日本語",zh:"中文（简体）",ko:"한국어",nl:"Nederlands",old:"Old English",british:"Extremely British",pirate:"Pirate Speak",entish:"Old Entish"};
+  const LANG_NAMES={en:"English",es:"Español",fr:"Français",de:"Deutsch",pt:"Português",it:"Italiano",ja:"日本語",zh:"中文（简体）",ko:"한국어",nl:"Nederlands",old:"Old English",british:"Extremely British",pirate:"Pirate Speak",entish:"Old Entish",trailer:"Overly Dramatic (Movie Trailer)"};
   const LANG_KEY="sapling-droppers-language-v1";
   function detectLanguage(){try{const saved=localStorage.getItem(LANG_KEY);if(saved&&LANG_NAMES[saved])return saved}catch(_){}const code=(navigator.language||"en").slice(0,2).toLowerCase();return LANG_NAMES[code]?code:"en"}
   let currentLanguage=detectLanguage();
   function tr(key,values={}){if(key==="TEAM_NAME")return "by the bio blazers";const added=ADDITIONAL_LANGUAGE_TEXT[currentLanguage]&&ADDITIONAL_LANGUAGE_TEXT[currentLanguage][key];let row=LANGUAGE_TEXT[key];const oldIndex=["es","fr","de"].indexOf(currentLanguage);let out=added||(currentLanguage==="en"||oldIndex<0||!row?key:row[oldIndex]);out=out.replace(/\{(\w+)\}/g,(m,k)=>Object.prototype.hasOwnProperty.call(values,k)?String(values[k]):m);out=stylizeEnglish(out,currentLanguage);return out.replace(/BIO BLAZERS/gi,"bio blazers")}
   function applyLanguage(){
-    document.documentElement.lang=["old","british","pirate","entish"].includes(currentLanguage)?"en":currentLanguage;
+    document.documentElement.lang=["old","british","pirate","entish","trailer"].includes(currentLanguage)?"en":currentLanguage;
     document.body.classList.toggle("entish-mode",currentLanguage==="entish");
     const picker=document.getElementById("languageSelect");if(picker)picker.value=currentLanguage;
     const map={tagline:"PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN",windProfileLabel:"WIND PROFILE",globalPlaysLabel:"GLOBAL PLAYS",personalBestLabel:"PERSONAL BEST",coverKicker:"TEAM_NAME",coverTagline:"PLANT A FOREST. BEAT THE WIND.",playLabel:"PLAY",updateLogLabel:"UPDATE LOG",coverFootnote:"A PIXEL REFORESTATION ARCADE GAME",currentBuildLabel:"CURRENT BUILD",touchCaption:"TOUCH CONTROLS",downloadLabel:"DOWNLOAD TO FILES",restartLabel:"RESTART MISSION",logKicker:"BIO BLAZERS DEVELOPMENT NOTES",logFooter:"MADE BY THE BIO BLAZERS · THANKS FOR PLAYING"};
