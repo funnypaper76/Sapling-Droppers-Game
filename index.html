@@ -453,7 +453,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.16 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.17 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option><option value="trailer">Overly Dramatic (Movie Trailer)</option></select>
@@ -507,8 +507,9 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.16</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.17</div>
       <div class="update-log-list">
+        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_33">QUIETER DRONE HUM</div><p data-i18n-key="LOG_DESC_33">Softened the continuous drone sound into a gentle, low sine-wave hum. All other sound effects remain unchanged.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_32">WOODLAND AUDIO & RANDOM ENCOUNTERS</div><p data-i18n-key="LOG_DESC_32">Added synthesized sound effects with a mute switch, drifting leaves, butterflies, passing birds, and collectible firefly bonuses that add points and a little time.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_31">TRAILER VOICE LINE POLISH</div><p data-i18n-key="LOG_DESC_31">Polished the dramatic language so special taglines stay intact while ordinary gameplay text still gets the full cinematic treatment.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_30">ONE DRONE. ONE FOREST. MAXIMUM DRAMA.</div><p data-i18n-key="LOG_DESC_30">Added Overly Dramatic Movie Trailer mode, with epic menu labels, heroic saplings, an unstoppable wind, and a narrator who treats every seed like destiny.</p></article>
@@ -1004,7 +1005,7 @@
   }
   function syncDroneHum(){
     if(!soundEnabled||state!=='playing'){stopDroneHum();return}const ac=audioContext;if(!ac||ac.state!=='running'||droneHumOscillator)return;
-    try{const o=ac.createOscillator(),g=ac.createGain();o.type='sawtooth';o.frequency.value=74;g.gain.value=.0001;o.connect(g);g.connect(ac.destination);o.start();g.gain.setTargetAtTime(.012,ac.currentTime,.16);droneHumOscillator=o;droneHumGain=g}catch(_){}
+    try{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=62;g.gain.value=.0001;o.connect(g);g.connect(ac.destination);o.start();g.gain.setTargetAtTime(.0026,ac.currentTime,.24);droneHumOscillator=o;droneHumGain=g}catch(_){}
   }
   function updateSoundToggle(){
     const b=document.getElementById('soundToggle'),l=document.getElementById('soundLabel');if(!b||!l)return;l.textContent=tr(soundEnabled?'SOUND ON':'SOUND OFF');b.setAttribute('aria-pressed',soundEnabled?'true':'false');b.setAttribute('aria-label',tr(soundEnabled?'SOUND ON':'SOUND OFF'));
@@ -1163,7 +1164,7 @@
       button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     });
     document.getElementById('modeDescription').textContent = tr(settings().description);
-    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.16 · ${tr(settings().label)} ${tr('MODE')}`;
+    document.querySelector('.version').innerHTML = `${tr('FIELD SIMULATOR')}<br>BUILD 1.7.17 · ${tr(settings().label)} ${tr('MODE')}`;
   }
   document.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
