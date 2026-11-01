@@ -450,7 +450,7 @@
 <main class="cabinet">
   <header class="topline">
     <div><div class="brand">SAPLING DROPPERS<span class="byline" data-i18n-key="TEAM_NAME">by the bio blazers</span></div><div class="tag" id="tagline">PIXEL REFORESTATION UNIT · TOUCH READY · TWO-LEVEL CAMPAIGN</div></div>
-    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.14 · TWO-LEVEL CAMPAIGN</div>
+    <div class="version">FIELD SIMULATOR<br>BUILD 1.7.15 · TWO-LEVEL CAMPAIGN</div>
   </header>
   <nav class="mode-picker" aria-label="Choose difficulty mode">
     <label class="language-label" for="languageSelect">LANGUAGE</label><select id="languageSelect" class="language-select" aria-label="Choose language"><option value="en">English</option><option value="es">Español (Spanish)</option><option value="fr">Français (French)</option><option value="de">Deutsch (German)</option><option value="pt">Português (Portuguese)</option><option value="it">Italiano (Italian)</option><option value="ja">日本語 (Japanese)</option><option value="zh">中文（简体） (Chinese, Simplified)</option><option value="ko">한국어 (Korean)</option><option value="nl">Nederlands (Dutch)</option><option value="old">Old English (Archaic English)</option><option value="british">Extremely British (British English)</option><option value="pirate">Pirate Speak (Pirate English)</option><option value="entish">Old Entish (Ancient Woodland Speech)</option><option value="trailer">Overly Dramatic (Movie Trailer)</option></select>
@@ -503,8 +503,9 @@
         </div>
         <button id="closeUpdateLog" class="update-log-close" type="button" aria-label="Close update log" data-i18n-aria="CLOSE UPDATE LOG">×</button>
       </div>
-      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.14</div>
+      <div class="update-log-current"><span id="currentBuildLabel">CURRENT BUILD</span> · 1.7.15</div>
       <div class="update-log-list">
+        <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_31">TRAILER VOICE LINE POLISH</div><p data-i18n-key="LOG_DESC_31">Polished the dramatic language so special taglines stay intact while ordinary gameplay text still gets the full cinematic treatment.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_30">ONE DRONE. ONE FOREST. MAXIMUM DRAMA.</div><p data-i18n-key="LOG_DESC_30">Added Overly Dramatic Movie Trailer mode, with epic menu labels, heroic saplings, an unstoppable wind, and a narrator who treats every seed like destiny.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_29">FULL-LENGTH ENTISH PARAGRAPHS</div><p data-i18n-key="LOG_DESC_29">Restored varied, long Entish paragraphs and contained scrolling within the game cabinet so the website does not grow endlessly.</p></article>
         <article class="update-entry"><div class="update-entry-title" data-i18n-key="LOG_TITLE_28">ENTISH SITE LAYOUT FIX</div><p data-i18n-key="LOG_DESC_28">Shortened website labels and reserved long Entish speech for dialogue; the final report remains three readable pages.</p></article>
@@ -684,18 +685,18 @@
       const dramaticPhrases=[
         ["THANKS FOR PLAYING","YOU HAVE WITNESSED THE LEGEND. THE TREES THANK YOU."],
         ["RESTART MISSION","ROLL THE DRONE. RUN IT AGAIN."],
-        ["MISSION FAILED","THE WIND HAS WON... FOR NOW."],
+        ["MISSION FAILED","THE UNSTOPPABLE WIND HAS WON... FOR NOW."],
         ["GAME OVER","THE END... OR IS IT?"],
-        ["FOREST RESTORED","A FOREST RISES. A LEGEND BEGINS."],
+        ["FOREST RESTORED","A LEGENDARY FOREST RISES. A LEGEND BEGINS."],
         ["PERSONAL BEST","YOUR LEGENDARY HIGH SCORE"],
         ["GLOBAL PLAYS","THE WORLD HAS JOINED THE QUEST"],
         ["UPDATE LOG","PREVIOUSLY, IN THE FOREST..."],
         ["FIELD REPORT","THE EPIC FIELD DOSSIER"],
-        ["PLANT A FOREST. BEAT THE WIND.","ONE DRONE. EIGHT SAPLINGS. ONE EPIC DESTINY."],
+        ["PLANT A FOREST. BEAT THE WIND.","ONE DRONE. EIGHT HEROIC SAPLINGS. ONE EPIC DESTINY."],
         ["A PIXEL REFORESTATION ARCADE GAME","A PIXEL REFORESTATION EPIC, COMING TO A PLANET NEAR YOU"],
         ["PLAY","UNLEASH THE EPIC"],
         ["NORMAL","THE CALM BEFORE"],
-        ["CHALLENGE","THE WIND AWAKENS"],
+        ["CHALLENGE","THE UNSTOPPABLE WIND AWAKENS"],
         ["GALE","THE FINAL STORM"]
       ];
       const dramaticWords=[
@@ -705,11 +706,18 @@
         ["TIME","COUNTDOWN"],["LEVEL","CHAPTER"],["DRONE","DESTINY'S DRONE"],
         ["SEEDBOMB","SEED OF DESTINY"]
       ];
+      let matchedPhrase=false;
       for(const [from,to] of dramaticPhrases){
-        value=value.replace(new RegExp(from.split(".").join("\\."),"gi"),match=>keepSpeechCase(match,to));
+        const escaped=from.split(".").join("\\.");
+        const pattern="\\b"+escaped+(/[A-Za-z]$/.test(from)?"\\b":"");
+        const next=value.replace(new RegExp(pattern,"gi"),match=>keepSpeechCase(match,to));
+        if(next!==value)matchedPhrase=true;
+        value=next;
       }
-      for(const [from,to] of dramaticWords){
-        value=value.replace(new RegExp("\\b"+from+"\\b","gi"),match=>keepSpeechCase(match,to));
+      if(!matchedPhrase){
+        for(const [from,to] of dramaticWords){
+          value=value.replace(new RegExp("\\b"+from+"\\b","gi"),match=>keepSpeechCase(match,to));
+        }
       }
       if(/[A-Za-z]/.test(value)&&value.length<=52&&!/[.!?…]$/.test(value))value+="!!!";
       return value;
